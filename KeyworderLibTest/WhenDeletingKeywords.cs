@@ -1,57 +1,77 @@
-﻿using System.Linq;
-using FluentAssertions;
-using KeyworderLib;
-using NUnit.Framework;
+﻿//using System.Linq;
+//using FluentAssertions;
+//using KeyworderLib;
+//using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace KeyworderLibTest
-{
-    [TestFixture]
-    public class WhenDeletingKeywords
-    {
-        [SetUp]
-        public void SetUp()
-        {
-            TestData.Create();
-        }
+//namespace KeyworderLibTest
+//{
+//    [TestClass]
+//    public class WhenDeletingKeywords
+//    {
+//        [TestInitialize]
+//        public void TestInitialize()
+//        {
+//            TestData.Create();
+//        }
 
-        [Test]
-        public void CanDeleteExistingCategory()
-        {
-            var testCategoryId = KeywordRepository.GetCategories().First().CategoryId;
-            KeywordRepository.DeleteCategory(testCategoryId);
-            KeywordRepository.GetCategories().Should()
-                .NotContain(c => c.CategoryId == testCategoryId);
-        }
+//        [TestMethod]
+//        public void CanDeleteExistingCategory()
+//        {
+//            // arrange
+//            var testCategoryId = KeywordRepository.GetCategories().First().CategoryId;
+
+//            // act
+//            KeywordRepository.DeleteCategory(testCategoryId);
+
+//            // assert
+//            KeywordRepository.GetCategories().Should()
+//                .NotContain(c => c.CategoryId == testCategoryId);
+//        }
         
-        [Test]
-        public void NoErrorWhenCategoryDoesntExist()
-        {
-            const string testCategoryId = "Foo";
-            KeywordRepository.DeleteCategory(testCategoryId);
-            KeywordRepository.GetCategories().Should()
-                .NotContain(c => c.CategoryId == testCategoryId);
-        }
+//        [TestMethod]
+//        public void NoErrorWhenCategoryDoesntExist()
+//        {
+//            // arrange
+//            const string testCategoryId = "Foo";
 
-        [Test]
-        public void CanDeleteExistingKeyword()
-        {
-            var testCategory = KeywordRepository.GetCategories().First();
-            var testCategoryId = testCategory.CategoryId;
-            var testKeywordId = testCategory.Keywords.First().KeywordId;
-            KeywordRepository.DeleteKeyword(testCategoryId, testKeywordId);
-            KeywordRepository.GetCategories().Single(c => c.CategoryId == testCategoryId)
-                .Keywords.Should().NotContain(k => k.KeywordId == testKeywordId);
-        }
+//            // act
+//            KeywordRepository.DeleteCategory(testCategoryId);
 
-        [Test]
-        public void NoErrorWhenKeywordDoesntExist()
-        {
-            var testCategory = KeywordRepository.GetCategories().First();
-            var testCategoryId = testCategory.CategoryId;
-            const string testKeywordId = "Foo";
-            KeywordRepository.DeleteKeyword(testCategoryId, testKeywordId);
-            KeywordRepository.GetCategories().Single(c => c.CategoryId == testCategoryId)
-                .Keywords.Should().NotContain(k => k.KeywordId == testKeywordId);
-        }
-    }
-}
+//            // assert
+//            KeywordRepository.GetCategories().Should()
+//                .NotContain(c => c.CategoryId == testCategoryId);
+//        }
+
+//        [TestMethod]
+//        public void CanDeleteExistingKeyword()
+//        {
+//            // arrange
+//            var testCategory = KeywordRepository.GetCategories().First();
+//            var testCategoryId = testCategory.CategoryId;
+//            var testKeywordId = testCategory.Keywords.First().KeywordId;
+
+//            // act
+//            KeywordRepository.DeleteKeyword(testCategoryId, testKeywordId);
+
+//            // assert
+//            KeywordRepository.GetCategories().Single(c => c.CategoryId == testCategoryId)
+//                .Keywords.Should().NotContain(k => k.KeywordId == testKeywordId);
+//        }
+
+//        [TestMethod]
+//        public void NoErrorWhenKeywordDoesntExist()
+//        {
+//            // arrange
+//            var testCategory = KeywordRepository.GetCategories().First();
+//            var testCategoryId = testCategory.CategoryId;
+//            const string testKeywordId = "Foo";
+
+//            // act
+//            KeywordRepository.DeleteKeyword(testCategoryId, testKeywordId);
+
+//            // assert
+//            KeywordRepository.GetCategories().Single(c => c.CategoryId == testCategoryId)
+//                .Keywords.Should().NotContain(k => k.KeywordId == testKeywordId);
+//        }
+//    }
+//}

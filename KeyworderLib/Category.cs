@@ -12,9 +12,8 @@ namespace KeyworderLib
         public Category(string categoryId)
         {
             if (string.IsNullOrWhiteSpace(categoryId))
-            {
-                throw new ArgumentException("CategoryId is required", nameof(categoryId));
-            }
+                throw new ArgumentNullException(nameof(categoryId));
+
             CategoryId = categoryId;
             Keywords = new SortedSet<Keyword>(new KeywordComparer());
         }

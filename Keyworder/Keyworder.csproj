@@ -86,10 +86,6 @@
       <Project>{dd81a29a-9b63-43ec-99c9-b4e1efa08e8a}</Project>
       <Name>KeyworderControls</Name>
     </ProjectReference>
-    <ProjectReference Include="..\KeyworderLib\KeyworderLib.csproj">
-      <Project>{76af4871-70b1-48ac-bd76-512750feb481}</Project>
-      <Name>KeyworderLib</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

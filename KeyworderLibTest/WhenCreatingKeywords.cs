@@ -1,80 +1,118 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using FluentAssertions;
 using KeyworderLib;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace KeyworderLibTest
 {
-    [TestFixture]
+    [TestClass]
     public class WhenCreatingKeywords
     {
-        [SetUp]
-        public void SetUp()
+        private string path;
+        private KeywordRepository keywordRepository;
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            TestData.Create();
+            path = TestData.GetTestPath();
+            File.WriteAllText(path, TestData.GetTestData());
+            keywordRepository = new KeywordRepository(path);
         }
 
-        [Test]
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+
+        [TestMethod]
         public void CanCreateNewCategory()
         {
+            // arrange
             const string testCategoryId = "TestCategory";
-            KeywordRepository.CreateCategory(testCategoryId);
-            KeywordRepository.GetCategories().Should()
+
+            // act
+            keywordRepository.CreateCategory(testCategoryId);
+
+            // assert
+            keywordRepository.GetCategories().Should()
                 .Contain(c => c.CategoryId == testCategoryId);
         }
 
-        [Test]
+        [TestMethod]
         public void CannotCreateDuplicateCategory()
         {
-            var categoryWithAtLeastOneKeyword = KeywordRepository.GetCategories()
+            // arrange
+            var categoryWithAtLeastOneKeyword = keywordRepository.GetCategories()
                 .First(c => c.Keywords.Count > 0);
             var keywordCount = categoryWithAtLeastOneKeyword.Keywords.Count;
             var testCategoryId = categoryWithAtLeastOneKeyword.CategoryId;
-            KeywordRepository.CreateCategory(testCategoryId);
-            var unchangedCategory = KeywordRepository.GetCategories()
+
+            // act
+            keywordRepository.CreateCategory(testCategoryId);
+
+            // assert
+            var unchangedCategory = keywordRepository.GetCategories()
                 .Single(c => c.CategoryId == testCategoryId);
             unchangedCategory.Keywords.Count.Should().Be(keywordCount);
 
             // also check file because sorted set only contains distinct items
-            XDocument.Load("Keywords.xml")
+            XDocument.Load(path)
                 .Descendants("Category")
                 .Count(e => e.Attribute("CategoryId").Value == testCategoryId)
                 .Should().Be(1);
         }
 
-        [Test]
+        [TestMethod]
         public void CanCreateNewKeyword()
         {
-            var testCategoryId = KeywordRepository.GetCategories().First().CategoryId;
+            // arrange
+            var testCategoryId = keywordRepository.GetCategories().First().CategoryId;
             const string testKeywordId = "TestKeyword";
-            KeywordRepository.CreateKeyword(testCategoryId, testKeywordId);
-            KeywordRepository.GetCategories().Single(c => c.CategoryId == testCategoryId)
+
+            // act
+            keywordRepository.CreateKeyword(testCategoryId, testKeywordId);
+
+            // assert
+            keywordRepository.GetCategories().Single(c => c.CategoryId == testCategoryId)
                 .Keywords.Should().Contain(k => k.KeywordId == testKeywordId);
         }
 
-        [Test]
+        [TestMethod]
         public void CanCreateDuplicateKeywordInDifferentCategory()
         {
-            var categories = KeywordRepository.GetCategories();
+            // arrange
+            var categories = keywordRepository.GetCategories();
             var existingKeywordId = categories.First(c => c.Keywords.Count > 0)
                 .Keywords.First().KeywordId;
             var differentCategoryId = categories.First(c => c.Keywords
                 .All(k => k.KeywordId != existingKeywordId)).CategoryId;
-            KeywordRepository.CreateKeyword(differentCategoryId, existingKeywordId);
-            KeywordRepository.GetCategories().Single(c => c.CategoryId == differentCategoryId)
+
+            // act
+            keywordRepository.CreateKeyword(differentCategoryId, existingKeywordId);
+
+            // assert
+            keywordRepository.GetCategories().Single(c => c.CategoryId == differentCategoryId)
                 .Keywords.Should().Contain(k => k.KeywordId == existingKeywordId);
         }
 
-        [Test]
+        [TestMethod]
         public void CannotCreateDuplicateKeywordWithinCategory()
         {
-            var categories = KeywordRepository.GetCategories();
+            // arrange
+            var categories = keywordRepository.GetCategories();
             var testCategory = categories.First(c => c.Keywords.Count > 0);
             var testCategoryId = testCategory.CategoryId;
             var existingKeywordId = testCategory.Keywords.First().KeywordId;
-            KeywordRepository.CreateKeyword(testCategoryId, existingKeywordId);
-            XDocument.Load("Keywords.xml")
+
+            // act
+            keywordRepository.CreateKeyword(testCategoryId, existingKeywordId);
+
+            // assert
+            XDocument.Load(path)
                 .Descendants("Category").Single(e => e.Attribute("CategoryId").Value == testCategoryId)
                 .Descendants("Keyword").Count(e => e.Attribute("KeywordId").Value == existingKeywordId)
                 .Should().Be(1);
