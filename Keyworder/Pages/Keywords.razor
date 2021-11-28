@@ -1,0 +1,44 @@
+﻿@page "/keywords"
+
+<PageTitle>Keywords</PageTitle>
+
+@using Keyworder.Data
+@inject KeywordService KeywordService
+
+<h1>Keywords</h1>
+
+<p>This component demonstrates fetching data from a service.</p>
+
+@if (categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Keywords</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var keyword in categories.SelectMany(c => c.Keywords))
+            {
+                <tr>
+                    <td>@keyword.CategoryId</td>
+                    <td>@keyword.KeywordId</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Category>? categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await KeywordService.GetCategoriesAsync();
+    }
+}
