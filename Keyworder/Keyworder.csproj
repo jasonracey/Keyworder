@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Data\Keywords.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

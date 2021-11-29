@@ -1,0 +1,72 @@
+﻿@page "/keywords-tree"
+
+<PageTitle>Keywords Tree</PageTitle>
+
+@using Excubo.Blazor.TreeViews
+@using Keyworder.Data
+@inject KeywordService KeywordService
+
+<h1>Keywords Tree</h1>
+
+@if (Items == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <TreeView Items="Items" GetChildren="(item) => item.Children" AllowSelection="true" @bind-SelectedItems="SelectedItems">
+        <ItemTemplate>
+            @context.Item.Self
+        </ItemTemplate>
+    </TreeView>
+}
+
+<div>
+    <button @onclick="@(() => SelectedItems = new List<Item>())">
+        Clear
+    </button>
+</div>
+
+@code {
+    private List<Item>? Items;
+    private List<Item> SelectedItems = new List<Item>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // todo: turn categories into a tree structure to bind without mapping
+        var categories = await KeywordService.GetCategoriesAsync();
+        Items = BuildItems(categories);
+    }
+
+    private List<Item> BuildItems(IEnumerable<Category> categories)
+    {
+        return categories
+            .Select(category => BuildItem(category))
+            .ToList();
+    }
+
+    private Item BuildItem(Category category)
+    {
+        return new Item
+        {
+            Self = category.CategoryId,
+            Children = category.Keywords
+                .Select(keyword => BuildItem(keyword))
+                .ToList()
+        };
+    }
+
+    private Item BuildItem(Keyword keyword)
+    {
+        return new Item 
+        { 
+            Self = keyword.KeywordId 
+        };
+    }
+
+    private class Item
+    {
+        public string? Self { get; set; }
+        public List<Item>? Children { get; set; }
+    }
+}
