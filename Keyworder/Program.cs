@@ -1,11 +1,11 @@
-using Keyworder.Data;
+using Keyworder;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-AddKeywordService(builder);
+builder.Services.AddKeyworderServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -25,10 +25,3 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 app.Run();
-
-static void AddKeywordService(WebApplicationBuilder builder)
-{
-    var keywordsXmlPath = builder.Configuration["KeywordsXmlPath"];
-    var keywordService = new KeywordService(keywordsXmlPath);
-    builder.Services.AddSingleton(keywordService);
-}
