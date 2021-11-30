@@ -1,12 +1,14 @@
-﻿@page "/keywords-tree"
+﻿@page "/keywords"
 
-<PageTitle>Keywords Tree</PageTitle>
+<PageTitle>Keywords</PageTitle>
 
 @using Excubo.Blazor.TreeViews
 @using Keyworder.Data
+@using Keyworder.Utilities
+@inject ClipboardService ClipboardService
 @inject KeywordService KeywordService
 
-<h1>Keywords Tree</h1>
+<h1>Keywords</h1>
 
 @if (Items == null)
 {
@@ -14,7 +16,7 @@
 }
 else
 {
-    <TreeView Items="Items" GetChildren="(item) => item.Children" AllowSelection="true" @bind-SelectedItems="SelectedItems">
+    <TreeView Items="Items" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(item) => item.Children" @bind-SelectedItems="SelectedItems">
         <ItemTemplate>
             @context.Item.Self
         </ItemTemplate>
@@ -24,6 +26,12 @@ else
 <div>
     <button @onclick="@(() => SelectedItems = new List<Item>())">
         Clear
+    </button>
+</div>
+
+<div>
+    <button @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedItems)))">
+        Copy
     </button>
 </div>
 
@@ -62,6 +70,21 @@ else
         { 
             Self = keyword.KeywordId 
         };
+    }
+
+    private async Task CopyToClipboard(string input)
+    {
+        await ClipboardService.WriteTextAsync(input);
+    }
+
+    private string ToFlickrTagsString(List<Item> items)
+    {
+        var quotedOrderedStrings = items
+            .Where(item => item.Children == null)
+            .OrderBy(item => item.Self, StringComparer.OrdinalIgnoreCase)
+            .Select(item => $"\"{item.Self}\"");
+
+        return string.Join(",", quotedOrderedStrings);
     }
 
     private class Item
