@@ -19,7 +19,7 @@ else
     <table>
         <tr>
             <td>
-                <TreeView Items="Items" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(item) => item.Children" @bind-SelectedItems="SelectedItems">
+                <TreeView @key="SelectedItems" Items="Items" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(item) => item.Children" @bind-SelectedItems="SelectedItems">
                     <ItemTemplate>
                         @context.Item.Self
                     </ItemTemplate>
@@ -29,7 +29,6 @@ else
         <tr>
             <td>
                 <div>
-                    @*todo: this is not working*@
                     <button @onclick="@(() => ClearSelectedItems())">
                         Clear
                     </button>
