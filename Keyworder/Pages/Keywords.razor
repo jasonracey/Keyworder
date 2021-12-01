@@ -16,24 +16,35 @@
 }
 else
 {
-    <TreeView Items="Items" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(item) => item.Children" @bind-SelectedItems="SelectedItems">
-        <ItemTemplate>
-            @context.Item.Self
-        </ItemTemplate>
-    </TreeView>
+    <table>
+        <tr>
+            <td>
+                <TreeView Items="Items" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(item) => item.Children" @bind-SelectedItems="SelectedItems">
+                    <ItemTemplate>
+                        @context.Item.Self
+                    </ItemTemplate>
+                </TreeView>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>
+                    @*todo: this is not working*@
+                    <button @onclick="@(() => ClearSelectedItems())">
+                        Clear
+                    </button>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <button @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedItems)))">
+                        Copy
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </table>
 }
-
-<div>
-    <button @onclick="@(() => SelectedItems = new List<Item>())">
-        Clear
-    </button>
-</div>
-
-<div>
-    <button @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedItems)))">
-        Copy
-    </button>
-</div>
 
 @code {
     private List<Item>? Items;
@@ -70,6 +81,11 @@ else
         { 
             Self = keyword.KeywordId 
         };
+    }
+
+    private void ClearSelectedItems()
+    {
+        SelectedItems = new List<Item>();
     }
 
     private async Task CopyToClipboard(string input)
