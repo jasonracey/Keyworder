@@ -12,7 +12,7 @@ namespace Keyworder.UnitTests.Utilities
         public void WhenCollectionIsNull_ThrowsExpectedException()
         {
             // act/assert
-            Assert.ThrowsException<ArgumentNullException>(() => TagService.ToFlickrTagsString(null));
+            Assert.ThrowsException<ArgumentNullException>(() => TagService.ToFlickrTagsString(null!));
         }
 
         [TestMethod]
