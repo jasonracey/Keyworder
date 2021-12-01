@@ -77,14 +77,13 @@ else
         await ClipboardService.WriteTextAsync(input);
     }
 
-    private string ToFlickrTagsString(List<Item> items)
+    private string ToFlickrTagsString(IEnumerable<Item> items)
     {
-        var quotedOrderedStrings = items
+        var values = items
             .Where(item => item.Children == null)
-            .OrderBy(item => item.Self, StringComparer.OrdinalIgnoreCase)
-            .Select(item => $"\"{item.Self}\"");
+            .Select(item => item.Self);
 
-        return string.Join(",", quotedOrderedStrings);
+        return TagService.ToFlickrTagsString(values);
     }
 
     private class Item
