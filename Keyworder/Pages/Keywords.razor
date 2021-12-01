@@ -46,7 +46,7 @@ else
 }
 
 @code {
-    private List<Item>? Items;
+    private List<Item> Items = null!;
     private List<Item> SelectedItems = new List<Item>();
 
     protected override async Task OnInitializedAsync()
@@ -103,7 +103,7 @@ else
 
     private class Item
     {
-        public string? Self { get; set; }
-        public List<Item>? Children { get; set; }
+        public string Self { get; set; } = null!;
+        public List<Item> Children { get; set; } = null!;
     }
 }

@@ -2,7 +2,7 @@
 
 public static class TagService
 {
-    public static string ToFlickrTagsString(IEnumerable<string?> values)
+    public static string ToFlickrTagsString(IEnumerable<string> values)
     {
         if (values == null)
             throw new ArgumentNullException(nameof(values));
