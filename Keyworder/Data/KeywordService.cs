@@ -20,8 +20,8 @@ namespace Keyworder.Data
         public async Task<IEnumerable<Keyword>> GetKeywordsAsync()
         {
             var keywordsJson = File.ReadAllText(this.keywordsJsonFile.FullName);
-            var keywords = JsonConvert.DeserializeObject<IEnumerable<Keyword>>(keywordsJson);
 
+            var keywords = JsonConvert.DeserializeObject<IEnumerable<Keyword>>(keywordsJson);
             if (keywords == null)
                 throw new KeyworderException("The specified json path deserialized to a null keywords collection");
 
