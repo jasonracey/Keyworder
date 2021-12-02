@@ -19,7 +19,7 @@ namespace Keyworder.UnitTests.Utilities
         public void WhenCollectionIsEmpty_ReturnsEmptyString()
         {
             // arrange
-            var values = new List<string?>();
+            var values = new List<string>();
 
             // act
             var result = TagService.ToFlickrTagsString(values);
