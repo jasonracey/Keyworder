@@ -10,7 +10,7 @@
 
 <h1>Keywords</h1>
 
-@if (Items == null)
+@if (AllKeywords == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -19,9 +19,9 @@ else
     <table>
         <tr>
             <td>
-                <TreeView @key="SelectedItems" Items="Items" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(item) => item.Children" @bind-SelectedItems="SelectedItems">
+                <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(keyword) => keyword.Keywords" @bind-SelectedItems="SelectedKeywords">
                     <ItemTemplate>
-                        @context.Item.Self
+                        @context.Item.Name
                     </ItemTemplate>
                 </TreeView>
             </td>
@@ -29,14 +29,14 @@ else
         <tr>
             <td>
                 <div>
-                    <button @onclick="@(() => ClearSelectedItems())">
+                    <button @onclick="@(() => ClearSelectedKeywords())">
                         Clear
                     </button>
                 </div>
             </td>
             <td>
                 <div>
-                    <button @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedItems)))">
+                    <button @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedKeywords)))">
                         Copy
                     </button>
                 </div>
@@ -46,45 +46,17 @@ else
 }
 
 @code {
-    private List<Item> Items = null!;
-    private List<Item> SelectedItems = new List<Item>();
+    private List<Keyword> AllKeywords = null!;
+    private List<Keyword> SelectedKeywords = new List<Keyword>();
 
     protected override async Task OnInitializedAsync()
     {
-        // todo: turn categories into a tree structure to bind without mapping
-        var categories = await KeywordService.GetCategoriesAsync();
-        Items = BuildItems(categories);
+        AllKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
     }
 
-    private List<Item> BuildItems(IEnumerable<Category> categories)
+    private void ClearSelectedKeywords()
     {
-        return categories
-            .Select(category => BuildItem(category))
-            .ToList();
-    }
-
-    private Item BuildItem(Category category)
-    {
-        return new Item
-        {
-            Self = category.CategoryId,
-            Children = category.Keywords
-                .Select(keyword => BuildItem(keyword))
-                .ToList()
-        };
-    }
-
-    private Item BuildItem(Keyword keyword)
-    {
-        return new Item 
-        { 
-            Self = keyword.KeywordId 
-        };
-    }
-
-    private void ClearSelectedItems()
-    {
-        SelectedItems = new List<Item>();
+        SelectedKeywords = new List<Keyword>();
     }
 
     private async Task CopyToClipboard(string input)
@@ -92,18 +64,12 @@ else
         await ClipboardService.WriteTextAsync(input);
     }
 
-    private string ToFlickrTagsString(IEnumerable<Item> items)
+    private string ToFlickrTagsString(IEnumerable<Keyword> keywords)
     {
-        var values = items
-            .Where(item => item.Children == null)
-            .Select(item => item.Self);
+        var values = keywords
+            .Where(keyword => keyword.Keywords == null)
+            .Select(keyword => keyword.Name);
 
         return TagService.ToFlickrTagsString(values);
-    }
-
-    private class Item
-    {
-        public string Self { get; set; } = null!;
-        public List<Item> Children { get; set; } = null!;
     }
 }

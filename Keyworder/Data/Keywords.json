@@ -1,0 +1,610 @@
+[
+  {
+    "Name": "Animal-Common",
+    "Keywords": [
+      {
+        "Name": "Animal"
+      },
+      {
+        "Name": "Bird"
+      },
+      {
+        "Name": "Black-Tailed Deer"
+      },
+      {
+        "Name": "Blacktail Deer"
+      },
+      {
+        "Name": "Deer"
+      },
+      {
+        "Name": "Hoary Marmot"
+      },
+      {
+        "Name": "Marmot"
+      },
+      {
+        "Name": "Mule Deer"
+      },
+      {
+        "Name": "Ptarmigan"
+      },
+      {
+        "Name": "Snow Quail"
+      },
+      {
+        "Name": "White-Tailed Ptarmigan"
+      },
+      {
+        "Name": "Wildlife"
+      }
+    ]
+  },
+  {
+    "Name": "Animal-Latin",
+    "Keywords": [
+      {
+        "Name": "Lagopus Leucura"
+      },
+      {
+        "Name": "Marmota Caligata"
+      },
+      {
+        "Name": "Marmota Caligata Cascandensis"
+      },
+      {
+        "Name": "Odocoileus Hemionus"
+      },
+      {
+        "Name": "Odocoileus Hemionus Columbianus"
+      }
+    ]
+  },
+  {
+    "Name": "Color",
+    "Keywords": [
+      {
+        "Name": "Aqua"
+      },
+      {
+        "Name": "Black"
+      },
+      {
+        "Name": "Blue"
+      },
+      {
+        "Name": "Brown"
+      },
+      {
+        "Name": "Green"
+      },
+      {
+        "Name": "Indigo"
+      },
+      {
+        "Name": "Orange"
+      },
+      {
+        "Name": "Pink"
+      },
+      {
+        "Name": "Purple"
+      },
+      {
+        "Name": "Red"
+      },
+      {
+        "Name": "Teal"
+      },
+      {
+        "Name": "White"
+      },
+      {
+        "Name": "Yellow"
+      }
+    ]
+  },
+  {
+    "Name": "Land",
+    "Keywords": [
+      {
+        "Name": "Cairn"
+      },
+      {
+        "Name": "Canyon"
+      },
+      {
+        "Name": "Cirque"
+      },
+      {
+        "Name": "Desert"
+      },
+      {
+        "Name": "Lookout"
+      },
+      {
+        "Name": "Mountain"
+      },
+      {
+        "Name": "Rocks"
+      },
+      {
+        "Name": "Sea Stack"
+      },
+      {
+        "Name": "Stratovolcano"
+      },
+      {
+        "Name": "Volcano"
+      }
+    ]
+  },
+  {
+    "Name": "Location-General",
+    "Keywords": [
+      {
+        "Name": "Alpine Lakes Wilderness"
+      },
+      {
+        "Name": "Boulder River Wilderness"
+      },
+      {
+        "Name": "Gifford Pinchot National Forest"
+      },
+      {
+        "Name": "Glacier National Park"
+      },
+      {
+        "Name": "Glacier Peak Wilderness"
+      },
+      {
+        "Name": "Goat Rocks Wilderness"
+      },
+      {
+        "Name": "Montana"
+      },
+      {
+        "Name": "Mount Baker National Recreation Area"
+      },
+      {
+        "Name": "Mount Baker-Snoqualmie National Forest"
+      },
+      {
+        "Name": "Mount Rainier National Park"
+      },
+      {
+        "Name": "North Cascades National Park"
+      },
+      {
+        "Name": "Okanogan-Wenatchee National Forest"
+      },
+      {
+        "Name": "Olympic National Park"
+      },
+      {
+        "Name": "Pacific Crest Trail"
+      },
+      {
+        "Name": "Utah"
+      },
+      {
+        "Name": "Wallace Falls State Park"
+      },
+      {
+        "Name": "Washington"
+      },
+      {
+        "Name": "Wild Sky Wilderness"
+      },
+      {
+        "Name": "Zion National Park"
+      }
+    ]
+  },
+  {
+    "Name": "Location-Specific",
+    "Keywords": [
+      {
+        "Name": "AltaMountain"
+      },
+      {
+        "Name": "Beckler Peak"
+      },
+      {
+        "Name": "Big Bend"
+      },
+      {
+        "Name": "Blue Lake"
+      },
+      {
+        "Name": "Boulder Creek"
+      },
+      {
+        "Name": "Boulder River"
+      },
+      {
+        "Name": "Canyon Creek"
+      },
+      {
+        "Name": "Cascade Pass"
+      },
+      {
+        "Name": "Chikamin Peak"
+      },
+      {
+        "Name": "Clover Lake"
+      },
+      {
+        "Name": "Colchuck Lake"
+      },
+      {
+        "Name": "Colchuck Peak"
+      },
+      {
+        "Name": "Dorado Needle"
+      },
+      {
+        "Name": "Dragontail Peak"
+      },
+      {
+        "Name": "Eldorado Peak"
+      },
+      {
+        "Name": "Elwha River"
+      },
+      {
+        "Name": "Excelsior Ridge"
+      },
+      {
+        "Name": "Gem Lake"
+      },
+      {
+        "Name": "Gilbert Peak"
+      },
+      {
+        "Name": "Glacier Peak"
+      },
+      {
+        "Name": "Grasshopper Pass"
+      },
+      {
+        "Name": "Grinnell Point"
+      },
+      {
+        "Name": "Hannegan Peak"
+      },
+      {
+        "Name": "Heliotrope Ridge"
+      },
+      {
+        "Name": "Hidden Lake Peaks"
+      },
+      {
+        "Name": "Huckleberry Mountain"
+      },
+      {
+        "Name": "Humes Ranch"
+      },
+      {
+        "Name": "Iceberg Lake"
+      },
+      {
+        "Name": "Indian Henry's Hunting Ground"
+      },
+      {
+        "Name": "Ives Peak"
+      },
+      {
+        "Name": "Kaleetan Peak"
+      },
+      {
+        "Name": "Lake Ann"
+      },
+      {
+        "Name": "Lake Ingalls"
+      },
+      {
+        "Name": "Lewis River"
+      },
+      {
+        "Name": "Liberty Bell Mountain"
+      },
+      {
+        "Name": "Lillian River"
+      },
+      {
+        "Name": "Mazama Ridge"
+      },
+      {
+        "Name": "Middle Lewis River Falls"
+      },
+      {
+        "Name": "Middle Wallace Falls"
+      },
+      {
+        "Name": "Mount Adams"
+      },
+      {
+        "Name": "Mount Baker"
+      },
+      {
+        "Name": "Mount Formidable"
+      },
+      {
+        "Name": "Mount Rainier"
+      },
+      {
+        "Name": "Mount Shuksan"
+      },
+      {
+        "Name": "Mount Stuart"
+      },
+      {
+        "Name": "Mount Wilbur"
+      },
+      {
+        "Name": "North Fork Virgin River"
+      },
+      {
+        "Name": "Old Snowy Mountain"
+      },
+      {
+        "Name": "Pacific Ocean"
+      },
+      {
+        "Name": "Palisades Lakes"
+      },
+      {
+        "Name": "Paradise"
+      },
+      {
+        "Name": "Paradise River"
+      },
+      {
+        "Name": "Park Butte"
+      },
+      {
+        "Name": "Rialto Beach"
+      },
+      {
+        "Name": "Ruth Mountain"
+      },
+      {
+        "Name": "Sahale Arm"
+      },
+      {
+        "Name": "Sahale Mountain"
+      },
+      {
+        "Name": "Shriner Peak"
+      },
+      {
+        "Name": "Skyline Trail"
+      },
+      {
+        "Name": "Swiftcurrent Lake"
+      },
+      {
+        "Name": "Table Mountain"
+      },
+      {
+        "Name": "Tower Mountain"
+      },
+      {
+        "Name": "Virgin River"
+      },
+      {
+        "Name": "Zion Canyon Narrows"
+      }
+    ]
+  },
+  {
+    "Name": "Plant-Common",
+    "Keywords": [
+      {
+        "Name": "Cottonwood"
+      },
+      {
+        "Name": "Flower"
+      },
+      {
+        "Name": "Forest"
+      },
+      {
+        "Name": "Fremont Cottonwood"
+      },
+      {
+        "Name": "Great Purple Monkeyflower"
+      },
+      {
+        "Name": "Heather"
+      },
+      {
+        "Name": "Lewis' Monkeyflower"
+      },
+      {
+        "Name": "Log"
+      },
+      {
+        "Name": "Lupine"
+      },
+      {
+        "Name": "Meadow"
+      },
+      {
+        "Name": "Pink Mountain-Heather"
+      },
+      {
+        "Name": "Seep-Spring Arnica"
+      },
+      {
+        "Name": "Sitka Valerian"
+      },
+      {
+        "Name": "Small-Flowered Paintbrush"
+      },
+      {
+        "Name": "Subalpine Larch"
+      },
+      {
+        "Name": "Tree"
+      },
+      {
+        "Name": "Wildflower"
+      }
+    ]
+  },
+  {
+    "Name": "Plant-Latin",
+    "Keywords": [
+      {
+        "Name": "Arnica Longifolia"
+      },
+      {
+        "Name": "Castilleja Parviflora"
+      },
+      {
+        "Name": "Larix Lyallii"
+      },
+      {
+        "Name": "Mimulus Lewisii"
+      },
+      {
+        "Name": "Phyllodoce Empetriformis"
+      },
+      {
+        "Name": "Populus Fremontii"
+      },
+      {
+        "Name": "Valeriana Sitchensis"
+      }
+    ]
+  },
+  {
+    "Name": "Sky",
+    "Keywords": [
+      {
+        "Name": "Clouds"
+      },
+      {
+        "Name": "Sky"
+      },
+      {
+        "Name": "Stars"
+      }
+    ]
+  },
+  {
+    "Name": "Style",
+    "Keywords": [
+      {
+        "Name": "Black And White"
+      },
+      {
+        "Name": "Bokeh"
+      },
+      {
+        "Name": "Landscape"
+      },
+      {
+        "Name": "Monochrome"
+      },
+      {
+        "Name": "Outdoor"
+      }
+    ]
+  },
+  {
+    "Name": "Time",
+    "Keywords": [
+      {
+        "Name": "Autumn"
+      },
+      {
+        "Name": "Dusk"
+      },
+      {
+        "Name": "Fall"
+      },
+      {
+        "Name": "Night"
+      },
+      {
+        "Name": "Sunrise"
+      },
+      {
+        "Name": "Sunset"
+      }
+    ]
+  },
+  {
+    "Name": "Tools",
+    "Keywords": [
+      {
+        "Name": "Bower 24mm F/1.4 ED AS UMC"
+      },
+      {
+        "Name": "Canon EF 16-35mm F/4L IS USM"
+      },
+      {
+        "Name": "Canon EF 17-40mm F/4L USM"
+      },
+      {
+        "Name": "Canon EF 24-105mm F/4L IS USM"
+      },
+      {
+        "Name": "Canon EF 70-200mm F/4L IS USM"
+      },
+      {
+        "Name": "Canon EF-S 10-22mm F/3.5-4.5 USM"
+      },
+      {
+        "Name": "Canon EOS 60D"
+      },
+      {
+        "Name": "Canon EOS 6D"
+      }
+    ]
+  },
+  {
+    "Name": "Water",
+    "Keywords": [
+      {
+        "Name": "Beach"
+      },
+      {
+        "Name": "Creek"
+      },
+      {
+        "Name": "Glacier"
+      },
+      {
+        "Name": "Ice"
+      },
+      {
+        "Name": "Lake"
+      },
+      {
+        "Name": "Ocean"
+      },
+      {
+        "Name": "Reflection"
+      },
+      {
+        "Name": "River"
+      },
+      {
+        "Name": "Snow"
+      },
+      {
+        "Name": "Stream"
+      },
+      {
+        "Name": "Tarn"
+      },
+      {
+        "Name": "Waterfall"
+      }
+    ]
+  }
+]

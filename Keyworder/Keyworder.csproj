@@ -7,13 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\Keywords.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 </Project>

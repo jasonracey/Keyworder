@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using Keyworder.Data;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Keyworder.UnitTests.Data;
 
@@ -11,25 +14,32 @@ public static class TestData
             File.Delete(path);
         }
 
-        const string xml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
-<Categories>
-    <Category CategoryId=""Animal-Common"">
-        <Keyword KeywordId=""Animal""/>
-        <Keyword KeywordId=""Bird""/>
-        <Keyword KeywordId=""Black-Tailed Deer""/>
-    </Category>
-    <Category CategoryId=""Animal-Latin"">
-        <Keyword KeywordId=""Lagopus Leucura""/>
-        <Keyword KeywordId=""Marmota Caligata""/>
-        <Keyword KeywordId=""Odocoileus Hemionus""/>
-    </Category>
-    <Category CategoryId=""Color"">
-        <Keyword KeywordId=""Black""/>
-        <Keyword KeywordId=""Blue""/>
-        <Keyword KeywordId=""Indigo""/>
-    </Category>
-</Categories>";
+        var keywords = new List<Keyword>
+        {
+            new Keyword
+            {
+                Name = "Fruit",
+                Keywords = new List<Keyword>
+                {
+                    new Keyword { Name = "Apple" },
+                    new Keyword { Name = "Banana" },
+                    new Keyword { Name = "Cherry" }
+                }
+            },
+            new Keyword
+            {
+                Name = "Vegetables",
+                Keywords = new List<Keyword>
+                {
+                    new Keyword { Name = "Tomato" },
+                    new Keyword { Name = "Pepper" },
+                    new Keyword { Name = "Squash" }
+                }
+            }
+        };
 
-        File.WriteAllText(path, xml);
+        var json = JsonConvert.SerializeObject(keywords);
+
+        File.WriteAllText(path, json);
     }
 }

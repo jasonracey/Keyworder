@@ -11,7 +11,7 @@ public class TestBase
     protected static string path = GetNewPath();
     protected static KeywordService keywordService = new(path);
 
-    protected static string GetNewPath() => $"Keywords-{Guid.NewGuid()}.xml";
+    protected static string GetNewPath() => $"Keywords-{Guid.NewGuid()}.json";
 
     [TestInitialize]
     public void TestInitialize()

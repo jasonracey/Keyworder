@@ -6,8 +6,8 @@ public static class ServiceCollectionExtensions
 {
     public static void AddKeyworderServices(this IServiceCollection services, ConfigurationManager configuration)
     {
-        var keywordsXmlPath = configuration["KeywordsXmlPath"];
-        var keywordService = new KeywordService(keywordsXmlPath);
+        var keywordsJsonPath = configuration["KeywordsJsonPath"];
+        var keywordService = new KeywordService(keywordsJsonPath);
         services.AddSingleton(keywordService);
     }
 }
