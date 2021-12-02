@@ -19,7 +19,7 @@ else
     <table>
         <tr>
             <td>
-                <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(keyword) => keyword.Keywords" @bind-SelectedItems="SelectedKeywords">
+                <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
                     <ItemTemplate>
                         @context.Item.Name
                     </ItemTemplate>
