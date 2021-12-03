@@ -1,0 +1,55 @@
+﻿@page "/create"
+
+<PageTitle>Create Keywords</PageTitle>
+
+@using Keyworder.Data
+@inject KeywordService KeywordService
+
+<h1>Create Keywords</h1>
+
+@if (AllKeywords == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <label>Create category</label>
+
+    <input type="text" @bind="@NewCategory" @oninput="@((e) => { NewCategory = (string)(e?.Value ?? string.Empty); })" />
+
+    <button @onclick="(() => SaveCategory())">
+        Save
+    </button>
+
+    <label>Create keyword</label>
+
+    <select />
+
+    <input type="text" @bind="@NewKeyword" @oninput="@((e) => { NewKeyword = (string)(e?.Value ?? string.Empty); })" />
+
+    <button @onclick="(() => SaveKeyword())">
+        Save
+    </button>
+}
+
+@code {
+    private string NewCategory { get; set; } = null!;
+    private string NewKeyword { get; set; } = null!;
+
+    private List<Keyword> AllKeywords = new List<Keyword>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+    }
+
+    private void SaveCategory()
+    {
+        Console.WriteLine($"You added {NewCategory}");
+    }
+
+    private void SaveKeyword()
+    {
+        Console.WriteLine($"You added {NewKeyword}");
+    }
+}
