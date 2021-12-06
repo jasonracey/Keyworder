@@ -18,19 +18,25 @@
 }
 else
 {
-    <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
-        <ItemTemplate>
-            @context.Item.Name
-        </ItemTemplate>
-    </TreeView>
-
-    <button @onclick="@(() => ClearSelectedKeywords())">
-        Clear
-    </button>
-
-    <button @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedKeywords)))">
-        Copy
-    </button>
+    <form>
+        <div class="row">
+            <div class="col">
+                 <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
+                    <ItemTemplate>
+                        @context.Item.Name
+                    </ItemTemplate>
+                </TreeView>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <button type="reset" class="btn btn-primary" disabled=@IsSelectedKeywordsEmpty() @onclick="@(() => ClearSelectedKeywords())">Clear</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary" disabled=@IsSelectedKeywordsEmpty() @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedKeywords)))">Copy</button>
+            </div>
+        </div>
+    </form>
 }
 
 @code {
@@ -50,6 +56,11 @@ else
     private async Task CopyToClipboard(string input)
     {
         await ClipboardService.WriteTextAsync(input);
+    }
+
+    private bool IsSelectedKeywordsEmpty()
+    {
+        return SelectedKeywords.Count == 0;
     }
 
     private string ToFlickrTagsString(IEnumerable<Keyword> keywords)
