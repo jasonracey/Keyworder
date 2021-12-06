@@ -15,23 +15,30 @@
 }
 else
 {
-    <label>Create category</label>
+    @*todo: padding and margins aren't correct here*@
+    <form>
+        <div class="form-group">
+            <input type="text" class="form-control" id="categoryInput" placeholder="Enter a new category" @bind="@NewCategory" @oninput="@((e) => { NewCategory = (string)(e?.Value ?? string.Empty); })" />
+        </div>
+        <button disabled type="submit" class="btn btn-primary" @onclick="(() => SaveCategory())">Save</button>
+    </form>
 
-    <input type="text" @bind="@NewCategory" @oninput="@((e) => { NewCategory = (string)(e?.Value ?? string.Empty); })" />
-
-    <button @onclick="(() => SaveCategory())">
-        Save
-    </button>
-
-    <label>Create keyword</label>
-
-    <select />
-
-    <input type="text" @bind="@NewKeyword" @oninput="@((e) => { NewKeyword = (string)(e?.Value ?? string.Empty); })" />
-
-    <button @onclick="(() => SaveKeyword())">
-        Save
-    </button>
+    <form>
+        <div class="form-group">
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Category
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#">Apple</a>
+                <a class="dropdown-item" href="#">Banana</a>
+                <a class="dropdown-item" href="#">Cherry</a>
+              </div>
+            </div>
+            <input type="text" class="form-control" id="keywordInput" aria-describedby="keywordHelp" placeholder="Enter a new keyword" @bind="@NewKeyword" @oninput="@((e) => { NewKeyword = (string)(e?.Value ?? string.Empty); })" />
+        </div>
+        <button disabled type="submit" class="btn btn-primary" @onclick="(() => SaveKeyword())">Save</button>
+    </form>
 }
 
 @code {
