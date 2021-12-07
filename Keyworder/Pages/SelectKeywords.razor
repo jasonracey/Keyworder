@@ -1,4 +1,4 @@
-﻿@page "/select"
+﻿@page "/select-keywords"
 
 <PageTitle>Select Keywords</PageTitle>
 
@@ -18,25 +18,30 @@
 }
 else
 {
-    <form>
-        <div class="row">
-            <div class="col">
-                 <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
-                    <ItemTemplate>
-                        @context.Item.Name
-                    </ItemTemplate>
-                </TreeView>
-            </div>
+@*    <div class="row">
+        <div class="col">
+            <RadzenTree Data=@AllKeywords AllowCheckBoxes="true" AllowCheckChildren="true" AllowCheckParents="true" @bind-CheckedValues="@SelectedKeywords">
+                <RadzenTreeLevel TextProperty="Name"/>
+            </RadzenTree>
         </div>
-        <div class="row">
-            <div class="col-auto">
-                <button type="reset" class="btn btn-primary" disabled=@IsSelectedKeywordsEmpty() @onclick="@(() => ClearSelectedKeywords())">Clear</button>
-            </div>
-            <div class="col-auto">
-                <button type="button" class="btn btn-primary" disabled=@IsSelectedKeywordsEmpty() @onclick="@(() => CopyToClipboard(ToFlickrTagsString(SelectedKeywords)))">Copy</button>
-            </div>
+    </div>*@
+    <div class="row">
+        <div class="col">
+                <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
+                <ItemTemplate>
+                    @context.Item.Name
+                </ItemTemplate>
+            </TreeView>
         </div>
-    </form>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton Text="Clear" Disabled=@IsSelectedKeywordsEmpty() Click=@ClearSelectedKeywords />
+        </div>
+        <div class="col">
+            <RadzenButton Text="Copy" Disabled=@IsSelectedKeywordsEmpty() Click="@(() => CopyToClipboard(ToFlickrTagsString(SelectedKeywords)))" />
+        </div>
+    </div>
 }
 
 @code {

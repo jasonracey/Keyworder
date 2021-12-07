@@ -1,11 +1,13 @@
 ﻿@page "/"
 @inject NavigationManager Navigator
 
-<h2>Index Page</h2>
+<div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+</div>
 
 @code {
     protected override void OnInitialized()
     {
-        Navigator.NavigateTo("/select", replace: true);
+        Navigator.NavigateTo("/select-keywords", replace: true);
     }
 }

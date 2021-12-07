@@ -1,0 +1,49 @@
+﻿@page "/create-category"
+
+<PageTitle>Create Category</PageTitle>
+
+@using Keyworder.Data
+@inject KeywordService KeywordService
+
+<div class="row">
+    <div class="col">
+        <h2>Create Category</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenTextBox Placeholder="Category..." MaxLength=50 @bind-Value=@specifiedCategory @oninput=@(args => OnCategoryTextChanged(args?.Value)) />
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenButton style="width: 160px" Icon="save" BusyText="Saving..." IsBusy=@isCategorySaveBusy Click=@OnSaveCategoryClicked Text="Save" Disabled=@IsSaveCategoryButtonDisabled() />
+        <RadzenLabel Text="Saved" Visible=@isCategorySavedVisible />
+    </div>
+</div>
+
+@code {
+    private bool isCategorySavedVisible = false;
+    private bool isCategorySaveBusy = false;
+    private string? specifiedCategory = null;
+
+    private bool IsSaveCategoryButtonDisabled()
+    {
+        return string.IsNullOrWhiteSpace(specifiedCategory);
+    }
+
+    private void OnCategoryTextChanged(object? value)
+    {
+        specifiedCategory = value?.ToString();
+        isCategorySavedVisible = false;
+    }
+
+    private async Task OnSaveCategoryClicked()
+    {
+        isCategorySaveBusy = true;
+        await Task.Delay(2000);
+        specifiedCategory = null;
+        isCategorySavedVisible = true;
+        isCategorySaveBusy = false;
+    }
+}

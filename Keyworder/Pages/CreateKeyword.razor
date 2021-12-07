@@ -1,11 +1,15 @@
-﻿@page "/create"
+﻿@page "/create-keyword"
 
-<PageTitle>Create Keywords</PageTitle>
+<PageTitle>Create Keyword</PageTitle>
 
 @using Keyworder.Data
 @inject KeywordService KeywordService
 
-<h2>Create Keywords</h2>
+<div class="row">
+    <div class="col">
+        <h2>Create Keyword</h2>
+    </div>
+</div>
 
 @if (allKeywords == null)
 {
@@ -15,17 +19,6 @@
 }
 else
 {
-    <div class="row">
-        <div class="col">
-            <RadzenTextBox Placeholder="Category..." MaxLength=50 @bind-Value=@specifiedCategory @oninput=@(args => OnCategoryTextChanged(args?.Value)) />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <RadzenButton style="width: 160px" Icon="save" BusyText="Saving..." IsBusy=@isCategorySaveBusy Click=@OnSaveCategoryClicked Text="Save" Disabled=@IsSaveCategoryButtonDisabled() />
-            <RadzenLabel Text="Saved" Visible=@isCategorySavedVisible />
-        </div>
-    </div>
     <div class="row">
         <div class="col">
             <RadzenLabel Text="Category" />
@@ -51,11 +44,8 @@ else
 
 @code {
     private List<Keyword> allKeywords = new List<Keyword>();
-    private bool isCategorySavedVisible = false;
-    private bool isCategorySaveBusy = false;
     private bool isKeywordSavedVisible = false;
     private bool isKeywordSaveBusy = false;
-    private string? specifiedCategory = null;
     private string? selectedCategory = null;
     private string? specifiedKeyword = null;
 
@@ -74,11 +64,6 @@ else
             .ToList();
     }
 
-    private bool IsSaveCategoryButtonDisabled()
-    {
-        return string.IsNullOrWhiteSpace(specifiedCategory);
-    }
-
     private bool IsSaveKeywordButtonDisabled()
     {
         return 
@@ -92,25 +77,10 @@ else
         isKeywordSavedVisible = false;
     }
 
-    private void OnCategoryTextChanged(object? value)
-    {
-        specifiedCategory = value?.ToString();
-        isCategorySavedVisible = false;
-    }
-
     private void OnKeywordTextChanged(object? value)
     {
         specifiedKeyword = value?.ToString();
         isKeywordSavedVisible = false;
-    }
-
-    private async Task OnSaveCategoryClicked()
-    {
-        isCategorySaveBusy = true;
-        await Task.Delay(2000);
-        specifiedCategory = null;
-        isCategorySavedVisible = true;
-        isCategorySaveBusy = false;
     }
 
     private async Task OnSaveKeywordClicked()

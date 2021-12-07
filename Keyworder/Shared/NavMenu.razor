@@ -10,13 +10,18 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="select">
-                <span class="mdi mdi-file-tree-outline" aria-hidden="true"></span> Select
+            <NavLink class="nav-link" href="select-keywords">
+                <span class="mdi mdi-file-tree" aria-hidden="true"></span> Select Keywords
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="create">
-                <span class="mdi mdi-format-list-checks" aria-hidden="true"></span> Create
+            <NavLink class="nav-link" href="create-category">
+                <span class="mdi mdi-key-plus" aria-hidden="true"></span> Create Category
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="create-keyword">
+                <span class="mdi mdi-key-plus" aria-hidden="true"></span> Create Keyword
             </NavLink>
         </div>
     </nav>
@@ -25,7 +30,9 @@
 @code {
     private bool collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? NavMenuCssClass => collapseNavMenu 
+        ? "collapse" 
+        : null;
 
     private void ToggleNavMenu()
     {
