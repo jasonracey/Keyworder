@@ -20,7 +20,7 @@ else
 {
     <div class="row">
         <div class="col">
-                <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
+            <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
                 <ItemTemplate>
                     @context.Item.Name
                 </ItemTemplate>
