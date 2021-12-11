@@ -58,7 +58,7 @@ else
 
     private bool IsSelectedKeywordsEmpty()
     {
-        return SelectedKeywords.Count == 0;
+        return SelectedKeywords.Where(keyword => keyword.Keywords == null).Count() == 0;
     }
 
     private string ToFlickrTagsString(IEnumerable<Keyword> keywords)
