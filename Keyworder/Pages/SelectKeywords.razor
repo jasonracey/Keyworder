@@ -18,13 +18,6 @@
 }
 else
 {
-@*    <div class="row">
-        <div class="col">
-            <RadzenTree Data=@AllKeywords AllowCheckBoxes="true" AllowCheckChildren="true" AllowCheckParents="true" @bind-CheckedValues="@SelectedKeywords">
-                <RadzenTreeLevel TextProperty="Name"/>
-            </RadzenTree>
-        </div>
-    </div>*@
     <div class="row">
         <div class="col">
                 <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
