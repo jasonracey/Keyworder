@@ -37,7 +37,7 @@ else
     <div class="row">
         <div class="col">
             <RadzenButton style="width: 160px" Icon="save" BusyText="Saving..." IsBusy=@isKeywordSaveBusy Click=@OnSaveKeywordClicked Text="Save" Disabled=@IsSaveKeywordButtonDisabled() />
-            <RadzenLabel Text="Saved" Visible=@isKeywordSavedVisible />
+            <RadzenLabel Text=@resultMessage Visible=@isKeywordSavedVisible />
         </div>
     </div>
 }
@@ -46,6 +46,7 @@ else
     private List<Keyword> allKeywords = new List<Keyword>();
     private bool isKeywordSavedVisible = false;
     private bool isKeywordSaveBusy = false;
+    private string? resultMessage = null;
     private string? selectedCategory = null;
     private string? specifiedKeyword = null;
 
@@ -86,9 +87,14 @@ else
     private async Task OnSaveKeywordClicked()
     {
         isKeywordSaveBusy = true;
-        await Task.Delay(2000);
+
+        var resultType = await this.KeywordService.CreateKeywordAsync(selectedCategory, specifiedKeyword);
+
+        // todo: result status bar or whatever
+
         selectedCategory = null;
         specifiedKeyword = null;
+        resultMessage = resultType.ToString();
         isKeywordSavedVisible = true;
         isKeywordSaveBusy = false;
     }
