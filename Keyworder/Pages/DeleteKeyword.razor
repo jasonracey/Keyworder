@@ -1,0 +1,119 @@
+﻿@page "/delete-keyword"
+
+<PageTitle>Delete Keyword</PageTitle>
+
+@using Keyworder.Data
+@inject KeywordService KeywordService
+
+<div class="row">
+    <div class="col">
+        <h2>Delete Keyword</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenLabel Text="Category" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetCategories() @bind-Value=@selectedCategory Change=@(value => OnCategoryDropDownValueChanged(value)) />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetKeywords(@selectedCategory) @bind-Value=@selectedKeyword Change=@(value => OnKeywordDropDownValueChanged(value)) Disabled=@IsKeywordDropDownDisabled() />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton style="width: 160px" Icon="save" BusyText="Deleting..." IsBusy=@isKeywordDeleteBusy Click=@OnDeleteKeywordClicked Text="Delete" Disabled=@IsDeleteKeywordButtonDisabled() />
+            <RadzenLabel Text=@resultMessage Visible=@isKeywordDeletedVisible />
+        </div>
+    </div>
+}
+
+@code {
+    private List<Keyword> allKeywords = new List<Keyword>();
+    private bool isKeywordDeletedVisible = false;
+    private bool isKeywordDeleteBusy = false;
+    private string? resultMessage = null;
+    private string? selectedCategory = null;
+    private string? selectedKeyword = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+    }
+
+    private List<string> GetCategories()
+    {
+        return allKeywords
+            .Where(k => k.Keywords != null)
+            .Select(k => k.Name)
+            .Distinct()
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private List<string> GetKeywords(string? category)
+    {
+        return string.IsNullOrWhiteSpace(category)
+            ? new List<string>()
+            : allKeywords
+                .Where(cat => cat.Keywords != null)
+                .Where(cat => cat.Name.Equals(category, StringComparison.Ordinal))
+                .SelectMany(cat => cat.Keywords.Select(keyword => keyword.Name))
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    private bool IsDeleteKeywordButtonDisabled()
+    {
+        return 
+            string.IsNullOrWhiteSpace(selectedCategory) || 
+            string.IsNullOrWhiteSpace(selectedKeyword);
+    }
+
+    private bool IsKeywordDropDownDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategory);
+    }
+
+    private void OnCategoryDropDownValueChanged(object? value)
+    {
+        selectedCategory = value?.ToString();
+        isKeywordDeletedVisible = false;
+    }
+
+    private void OnKeywordDropDownValueChanged(object? value)
+    {
+        selectedKeyword = value?.ToString();
+        isKeywordDeletedVisible = false;
+    }
+
+    private async Task OnDeleteKeywordClicked()
+    {
+        isKeywordDeleteBusy = true;
+
+        var resultType = await this.KeywordService.DeleteKeywordAsync(selectedCategory, selectedKeyword);
+
+        // todo: result status bar or whatever
+
+        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        selectedCategory = null;
+        selectedKeyword = null;
+        resultMessage = resultType.ToString();
+        isKeywordDeletedVisible = true;
+        isKeywordDeleteBusy = false;
+    }
+}
