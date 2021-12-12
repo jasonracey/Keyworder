@@ -169,6 +169,49 @@ namespace Keyworder.Data
             }
         }
 
+        public async Task<ResultType> EditCategoryAsync(string? oldName, string? newName)
+        {
+            if (oldName == null)
+                throw new ArgumentNullException(nameof(oldName));
+            if (newName == null)
+                throw new ArgumentNullException(nameof(newName));
+
+            var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
+
+            fileLock.EnterWriteLock();
+
+            try
+            {
+                var oldNameClean = HttpUtility.HtmlEncode(oldName.Trim());
+                var newNameClean = HttpUtility.HtmlEncode(newName.Trim());
+
+                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(oldNameClean, StringComparison.Ordinal));
+
+                if (existingCategory.Children.Any(keyword => keyword.Name.Equals(newNameClean, StringComparison.Ordinal)))
+                    return ResultType.Duplicate;
+
+                var updatedCategory = new Keyword
+                {
+                    Name = newNameClean,
+                    IsCategory = true,
+                    Children = existingCategory.Children
+                };
+
+                var updatedKeywords = existingKeywords
+                    .Except(new[] { existingCategory })
+                    .Concat(new[] { updatedCategory });
+
+                var keywordsJson = JsonConvert.SerializeObject(updatedKeywords);
+                File.WriteAllText(this.keywordsJsonFile.FullName, keywordsJson);
+
+                return ResultType.Success;
+            }
+            finally
+            {
+                fileLock.ExitWriteLock();
+            }
+        }
+
         public async Task<IEnumerable<Keyword>> GetKeywordsAsync()
         {
             fileLock.EnterReadLock();
