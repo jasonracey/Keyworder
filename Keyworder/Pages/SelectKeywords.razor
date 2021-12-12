@@ -20,7 +20,7 @@ else
 {
     <div class="row">
         <div class="col">
-            <TreeView @key="SelectedKeywords" Items="AllKeywords" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Keywords" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
+            <TreeView @key=@SelectedKeywords Items=@AllKeywords ItemDisabled="keyword => IsKeywordDisabled(keyword)" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Children" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
                 <ItemTemplate>
                     @context.Item.Name
                 </ItemTemplate>
@@ -54,6 +54,12 @@ else
     private async Task CopyToClipboard(string input)
     {
         await ClipboardService.WriteTextAsync(input);
+    }
+
+    private bool IsKeywordDisabled(Keyword keyword)
+    {
+        return keyword.IsCategory && 
+            !keyword.Children.Any();
     }
 
     private bool IsSelectedKeywordsEmpty()
