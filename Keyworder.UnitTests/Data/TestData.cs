@@ -19,7 +19,7 @@ public static class TestData
             new Keyword
             {
                 Name = "Fruit",
-                Keywords = new List<Keyword>
+                Children = new List<Keyword>
                 {
                     new Keyword { Name = "Apple" },
                     new Keyword { Name = "Banana" },
@@ -29,7 +29,7 @@ public static class TestData
             new Keyword
             {
                 Name = "Vegetables",
-                Keywords = new List<Keyword>
+                Children = new List<Keyword>
                 {
                     new Keyword { Name = "Tomato" },
                     new Keyword { Name = "Pepper" },

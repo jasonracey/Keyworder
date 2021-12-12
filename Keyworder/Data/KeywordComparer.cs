@@ -10,7 +10,7 @@ namespace Keyworder.Data
         {
             return 
                 k1?.Name == k2?.Name && 
-                Enumerable.SequenceEqual(k1?.Keywords ?? Empty, k2?.Keywords ?? Empty);
+                Enumerable.SequenceEqual(k1?.Children ?? Empty, k2?.Children ?? Empty);
         }
 
         public int GetHashCode([DisallowNull] Keyword k)
@@ -20,9 +20,9 @@ namespace Keyworder.Data
                 : 0;
 
             int keywordsHashCode = 0;
-            if (k?.Keywords != null)
+            if (k?.Children != null)
             {
-                foreach (var keyword in k?.Keywords ?? Empty)
+                foreach (var keyword in k?.Children ?? Empty)
                 {
                     keywordsHashCode ^= keyword.GetHashCode();
                 }

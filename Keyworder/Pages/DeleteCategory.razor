@@ -47,8 +47,8 @@ else
     private List<string> GetCategories()
     {
         return allKeywords
-            .Where(k => k.Keywords != null)
-            .Select(k => k.Name)
+            .Where(keyword => keyword.IsCategory)
+            .Select(keyword => keyword.Name)
             .Distinct()
             .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToList();

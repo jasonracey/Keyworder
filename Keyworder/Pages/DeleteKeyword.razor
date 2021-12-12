@@ -58,8 +58,8 @@ else
     private List<string> GetCategories()
     {
         return allKeywords
-            .Where(k => k.Keywords != null)
-            .Select(k => k.Name)
+            .Where(keyword => keyword.IsCategory)
+            .Select(keyword => keyword.Name)
             .Distinct()
             .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -70,9 +70,9 @@ else
         return string.IsNullOrWhiteSpace(category)
             ? new List<string>()
             : allKeywords
-                .Where(cat => cat.Keywords != null)
-                .Where(cat => cat.Name.Equals(category, StringComparison.Ordinal))
-                .SelectMany(cat => cat.Keywords.Select(keyword => keyword.Name))
+                .Where(keyword => keyword.IsCategory)
+                .Where(keyword => keyword.Name.Equals(category, StringComparison.Ordinal))
+                .SelectMany(parentKeyword => parentKeyword.Children.Select(childKeyword => childKeyword.Name))
                 .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
     }

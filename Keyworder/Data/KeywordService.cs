@@ -41,7 +41,8 @@ namespace Keyworder.Data
                 var newCategory = new Keyword
                 {
                     Name = categoryNameClean,
-                    Keywords = new List<Keyword>()
+                    IsCategory = true,
+                    Children = new List<Keyword>()
                 };
 
                 var keywordsJson = JsonConvert.SerializeObject(existingKeywords.Concat(new[] { newCategory }));
@@ -73,13 +74,14 @@ namespace Keyworder.Data
 
                 var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(categoryNameClean, StringComparison.Ordinal));
 
-                if (existingCategory.Keywords.Any(keyword => keyword.Name.Equals(keywordNameClean, StringComparison.Ordinal)))
+                if (existingCategory.Children.Any(keyword => keyword.Name.Equals(keywordNameClean, StringComparison.Ordinal)))
                     return ResultType.Duplicate;
 
                 var updatedCategory = new Keyword
                 {
                     Name = existingCategory.Name,
-                    Keywords = existingCategory.Keywords
+                    IsCategory = true,
+                    Children = existingCategory.Children
                         .Concat(new[] { new Keyword { Name = keywordNameClean } })
                         .ToList()
                 };
@@ -146,7 +148,8 @@ namespace Keyworder.Data
                 var updatedCategory = new Keyword
                 {
                     Name = existingCategory.Name,
-                    Keywords = existingCategory.Keywords
+                    IsCategory = true,
+                    Children = existingCategory.Children
                         .Where(keyword => !keyword.Name.Equals(keywordNameClean, StringComparison.Ordinal))
                         .ToList()
                 };

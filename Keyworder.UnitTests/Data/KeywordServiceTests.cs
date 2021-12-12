@@ -20,13 +20,13 @@ public class KeywordServiceTests : TestBase
         {
             keyword.Should().NotBeNull();
             keyword.Name.Should().NotBeNullOrWhiteSpace();
-            keyword.Keywords.Should().NotBeNull();
-            keyword.Keywords.Count().Should().BeGreaterThan(0);
-            foreach (var child in keyword.Keywords)
+            keyword.Children.Should().NotBeNull();
+            keyword.Children.Count().Should().BeGreaterThan(0);
+            foreach (var child in keyword.Children)
             {
                 child.Should().NotBeNull();
                 child.Name.Should().NotBeNullOrWhiteSpace();
-                child.Keywords.Should().BeNull();
+                child.Children.Should().BeNull();
             }
         }
     }

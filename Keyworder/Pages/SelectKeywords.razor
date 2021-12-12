@@ -58,13 +58,15 @@ else
 
     private bool IsSelectedKeywordsEmpty()
     {
-        return SelectedKeywords.Where(keyword => keyword.Keywords == null).Count() == 0;
+        return SelectedKeywords
+            .Where(keyword => !keyword.IsCategory)
+            .Count() == 0;
     }
 
     private string ToFlickrTagsString(IEnumerable<Keyword> keywords)
     {
         var values = keywords
-            .Where(keyword => keyword.Keywords == null)
+            .Where(keyword => keyword.Children == null)
             .Select(keyword => keyword.Name);
 
         return TagService.ToFlickrTagsString(values);
