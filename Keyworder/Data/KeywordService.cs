@@ -80,7 +80,7 @@ namespace Keyworder.Data
                 var updatedCategory = new Keyword
                 {
                     Name = existingCategory.Name,
-                    IsCategory = true,
+                    IsCategory = existingCategory.IsCategory,
                     Children = existingCategory.Children
                         .Concat(new[] { new Keyword { Name = keywordNameClean } })
                         .ToList()
@@ -148,7 +148,7 @@ namespace Keyworder.Data
                 var updatedCategory = new Keyword
                 {
                     Name = existingCategory.Name,
-                    IsCategory = true,
+                    IsCategory = existingCategory.IsCategory,
                     Children = existingCategory.Children
                         .Where(keyword => !keyword.Name.Equals(keywordNameClean, StringComparison.Ordinal))
                         .ToList()
@@ -169,12 +169,12 @@ namespace Keyworder.Data
             }
         }
 
-        public async Task<ResultType> EditCategoryAsync(string? oldName, string? newName)
+        public async Task<ResultType> EditCategoryAsync(string? oldCategoryName, string? newCategoryName)
         {
-            if (oldName == null)
-                throw new ArgumentNullException(nameof(oldName));
-            if (newName == null)
-                throw new ArgumentNullException(nameof(newName));
+            if (oldCategoryName == null)
+                throw new ArgumentNullException(nameof(oldCategoryName));
+            if (newCategoryName == null)
+                throw new ArgumentNullException(nameof(newCategoryName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
 
@@ -182,19 +182,77 @@ namespace Keyworder.Data
 
             try
             {
-                var oldNameClean = HttpUtility.HtmlEncode(oldName.Trim());
-                var newNameClean = HttpUtility.HtmlEncode(newName.Trim());
+                var oldCategoryNameClean = HttpUtility.HtmlEncode(oldCategoryName.Trim());
+                var newCategoryNameClean = HttpUtility.HtmlEncode(newCategoryName.Trim());
 
-                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(oldNameClean, StringComparison.Ordinal));
+                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(oldCategoryNameClean, StringComparison.Ordinal));
 
-                if (existingCategory.Children.Any(keyword => keyword.Name.Equals(newNameClean, StringComparison.Ordinal)))
+                if (existingCategory.Children.Any(keyword => keyword.Name.Equals(newCategoryNameClean, StringComparison.Ordinal)))
                     return ResultType.Duplicate;
 
                 var updatedCategory = new Keyword
                 {
-                    Name = newNameClean,
-                    IsCategory = true,
+                    Name = newCategoryNameClean,
+                    IsCategory = existingCategory.IsCategory,
                     Children = existingCategory.Children
+                };
+
+                var updatedKeywords = existingKeywords
+                    .Except(new[] { existingCategory })
+                    .Concat(new[] { updatedCategory });
+
+                var keywordsJson = JsonConvert.SerializeObject(updatedKeywords);
+                File.WriteAllText(this.keywordsJsonFile.FullName, keywordsJson);
+
+                return ResultType.Success;
+            }
+            finally
+            {
+                fileLock.ExitWriteLock();
+            }
+        }
+
+        public async Task<ResultType> EditKeywordAsync(string? categoryName, string? oldKeywordName, string? newKeywordName)
+        {
+            if (categoryName == null)
+                throw new ArgumentNullException(nameof(categoryName));
+            if (oldKeywordName == null)
+                throw new ArgumentNullException(nameof(oldKeywordName));
+            if (newKeywordName == null)
+                throw new ArgumentNullException(nameof(newKeywordName));
+
+            var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
+
+            fileLock.EnterWriteLock();
+
+            try
+            {
+                var categoryNameClean = HttpUtility.HtmlEncode(categoryName.Trim());
+                var oldKeywordNameClean = HttpUtility.HtmlEncode(oldKeywordName.Trim());
+                var newKeywordNameClean = HttpUtility.HtmlEncode(newKeywordName.Trim());
+
+                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(categoryNameClean, StringComparison.Ordinal));
+
+                if (existingCategory.Children.Any(keyword => keyword.Name.Equals(newKeywordNameClean, StringComparison.Ordinal)))
+                    return ResultType.Duplicate;
+
+                var existingKeyword = existingCategory.Children.Single(Keyword => Keyword.Name.Equals(oldKeywordNameClean, StringComparison.Ordinal));
+                
+                var newKeyword = new Keyword
+                {
+                    Name = newKeywordNameClean,
+                    IsCategory = false,
+                    Children = new List<Keyword>()
+                };
+
+                var updatedCategory = new Keyword
+                {
+                    Name = existingCategory.Name,
+                    IsCategory = existingCategory.IsCategory,
+                    Children = existingCategory.Children
+                        .Except(new[] { existingKeyword })
+                        .Concat(new[] { newKeyword })
+                        .ToList()
                 };
 
                 var updatedKeywords = existingKeywords

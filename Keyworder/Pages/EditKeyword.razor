@@ -1,0 +1,135 @@
+﻿@page "/edit-keyword"
+
+<PageTitle>Edit Keyword</PageTitle>
+
+@using Keyworder.Data
+@inject KeywordService KeywordService
+
+<div class="row">
+    <div class="col">
+        <h2>Edit Keyword</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetCategories() @bind-Value=@selectedCategory Change=@(value => OnCategoryDropDownValueChanged(value)) />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@selectedCategoryKeywords Disabled=@IsSelectKeywordDisabled() @bind-Value=@selectedKeyword Change=@(value => OnKeywordDropDownValueChanged(value)) />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenTextBox Placeholder="Keyword..." MaxLength=50 Disabled=@IsSpecifyKeywordDisabled() @bind-Value=@specifiedKeyword @oninput=@(args => OnKeywordTextChanged(args?.Value)) />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton style="width: 160px" Icon="save" BusyText="Saving..." IsBusy=@isKeywordSaveBusy Click=@OnSaveKeywordClicked Text="Save" Disabled=@IsSaveKeywordButtonDisabled() />
+            <RadzenLabel Text=@resultMessage Visible=@isKeywordSavedVisible />
+        </div>
+    </div>
+}
+
+@code {
+    private List<Keyword> allKeywords = new List<Keyword>();
+    private List<string> selectedCategoryKeywords = new List<string>();
+    private bool isKeywordSavedVisible = false;
+    private bool isKeywordSaveBusy = false;
+    private string? resultMessage = null;
+    private string? selectedCategory = null;
+    private string? selectedKeyword = null;
+    private string? specifiedKeyword = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+    }
+
+    private List<string> GetCategories()
+    {
+        return allKeywords
+            .Where(keyword => keyword.IsCategory)
+            .Select(keyword => keyword.Name)
+            .Distinct()
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private List<string> GetSelectedCategoryKeywords(string categoryName)
+    {
+        return allKeywords
+            .First(keyword => keyword.Name.Equals(categoryName, StringComparison.Ordinal)).Children
+            .Select(keyword => keyword.Name)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private bool IsSaveKeywordButtonDisabled()
+    {
+        return string.IsNullOrWhiteSpace(specifiedKeyword) ||
+            (selectedKeyword != null && selectedKeyword.Equals(specifiedKeyword, StringComparison.Ordinal));
+    }
+
+    private bool IsSelectKeywordDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategory);
+    }
+
+    private bool IsSpecifyKeywordDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedKeyword);
+    }
+
+    private void OnCategoryDropDownValueChanged(object? value)
+    {
+        selectedCategory = value?.ToString();
+        selectedCategoryKeywords = selectedCategory != null
+            ? GetSelectedCategoryKeywords(selectedCategory)
+            : new List<string>();
+        selectedKeyword = null;
+        specifiedKeyword = null;
+        isKeywordSavedVisible = false;
+    }
+
+    private void OnKeywordDropDownValueChanged(object? value)
+    {
+        selectedKeyword = value?.ToString();
+        specifiedKeyword = selectedKeyword;
+        isKeywordSavedVisible = false;
+    }
+
+    private void OnKeywordTextChanged(object? value)
+    {
+        specifiedKeyword = value?.ToString();
+        isKeywordSavedVisible = false;
+    }
+
+    private async Task OnSaveKeywordClicked()
+    {
+        isKeywordSaveBusy = true;
+
+        var resultType = await this.KeywordService.EditKeywordAsync(selectedCategory, selectedKeyword, specifiedKeyword);
+        
+        // todo: result status bar or whatever
+
+        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        selectedCategory = null;
+        selectedKeyword = null;
+        specifiedKeyword = null;
+        resultMessage = resultType.ToString();
+        isKeywordSavedVisible = true;
+        isKeywordSaveBusy = false;
+    }
+}
