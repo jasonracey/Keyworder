@@ -4,6 +4,7 @@
 
 @using Keyworder.Data
 @inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <div class="row">
     <div class="col">
@@ -21,33 +22,69 @@ else
 {
     <div class="row">
         <div class="col">
-            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetCategories() @bind-Value=@selectedCategory Change=@(value => OnCategoryDropDownValueChanged(value)) />
+            <RadzenDropDown 
+                @bind-Value=@selectedCategory 
+                Change=@(value => OnCategoryDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <RadzenTextBox Placeholder="Category..." MaxLength=50 Disabled=@IsSpecifyCategoryDisabled() @bind-Value=@specifiedCategory @oninput=@(args => OnCategoryTextChanged(args?.Value)) />
+            <RadzenTextBox 
+                @bind-Value=@specifiedCategory 
+                Disabled=@IsSpecifyCategoryDisabled() 
+                MaxLength=50 
+                @oninput=@(args => OnCategoryTextChanged(args?.Value)) 
+                Placeholder="Category..." />
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <RadzenButton style="width: 160px" Icon="save" BusyText="Saving..." IsBusy=@isCategorySaveBusy Click=@OnSaveCategoryClicked Text="Save" Disabled=@IsSaveCategoryButtonDisabled() />
-            <RadzenLabel Text=@resultMessage Visible=@isCategorySavedVisible />
+            <RadzenButton 
+                BusyText="Saving..." 
+                Click=@OnSaveCategoryClicked 
+                Disabled=@IsSaveCategoryButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isCategorySaveBusy 
+                style="width: 160px" 
+                Text="Save" />
         </div>
     </div>
 }
 
 @code {
     private List<Keyword> allKeywords = new List<Keyword>();
-    private bool isCategorySavedVisible = false;
     private bool isCategorySaveBusy = false;
-    private string? resultMessage = null;
     private string? selectedCategory = null;
     private string? specifiedCategory = null;
 
+    private static readonly NotificationMessage duplicateCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category already exists", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Warning, 
+        Summary = "Duplicate"
+    };
+
+    private static readonly NotificationMessage savedCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category saved successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
     protected override async Task OnInitializedAsync()
     {
-        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
+    }
+
+    private async Task<List<Keyword>> GetAllKeywords()
+    {
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        return keywordsEnumerable.ToList();
     }
 
     private List<string> GetCategories()
@@ -60,10 +97,21 @@ else
             .ToList();
     }
 
+    private NotificationMessage GetNotificationMessage(ResultType resultType)
+    {
+        return resultType == ResultType.Success 
+            ? savedCategoryMessage 
+            : duplicateCategoryMessage;
+    }
+
     private bool IsSaveCategoryButtonDisabled()
     {
-        return string.IsNullOrWhiteSpace(specifiedCategory) ||
-            (selectedCategory != null && selectedCategory.Equals(specifiedCategory, StringComparison.Ordinal));
+        return 
+            string.IsNullOrWhiteSpace(specifiedCategory) ||
+            (
+                selectedCategory != null && 
+                selectedCategory.Equals(specifiedCategory, StringComparison.Ordinal)
+            );
     }
 
     private bool IsSpecifyCategoryDisabled()
@@ -75,28 +123,27 @@ else
     {
         selectedCategory = value?.ToString();
         specifiedCategory = selectedCategory;
-        isCategorySavedVisible = false;
     }
 
     private void OnCategoryTextChanged(object? value)
     {
         specifiedCategory = value?.ToString();
-        isCategorySavedVisible = false;
     }
 
     private async Task OnSaveCategoryClicked()
     {
         isCategorySaveBusy = true;
 
-        var resultType = await this.KeywordService.EditCategoryAsync(selectedCategory, specifiedCategory);
+        var resultType = await this.KeywordService.EditCategoryAsync(
+            selectedCategory, 
+            specifiedCategory);
         
-        // todo: result status bar or whatever
+        NotificationService.Notify(GetNotificationMessage(resultType));
 
-        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
+
         selectedCategory = null;
         specifiedCategory = null;
-        resultMessage = resultType.ToString();
-        isCategorySavedVisible = true;
         isCategorySaveBusy = false;
     }
 }
