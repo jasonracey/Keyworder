@@ -4,6 +4,7 @@
 
 @using Keyworder.Data
 @inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <div class="row">
     <div class="col">
@@ -12,21 +13,55 @@
 </div>
 <div class="row">
     <div class="col">
-        <RadzenTextBox Placeholder="Category..." MaxLength=50 @bind-Value=@specifiedCategory @oninput=@(args => OnCategoryTextChanged(args?.Value)) />
+        <RadzenTextBox 
+            @bind-Value=@specifiedCategory 
+            MaxLength=50 
+            @oninput=@(args => OnCategoryTextChanged(args?.Value)) 
+            Placeholder="Category..." />
     </div>
 </div>
 <div class="row">
     <div class="col">
-        <RadzenButton style="width: 160px" Icon="save" BusyText="Saving..." IsBusy=@isCategorySaveBusy Click=@OnSaveCategoryClicked Text="Save" Disabled=@IsSaveCategoryButtonDisabled() />
-        <RadzenLabel Text=@resultMessage Visible=@isCategorySavedVisible />
+        <RadzenButton 
+            BusyText="Saving..." 
+            Click=@OnSaveCategoryClicked 
+            Disabled=@IsSaveCategoryButtonDisabled() 
+            Icon="save" 
+            IsBusy=@isCategorySaveBusy 
+            style="width: 160px" 
+            Text="Save" />
+    </div>
+    <div class="col">
+        <RadzenNotification />
     </div>
 </div>
 
 @code {
-    private bool isCategorySavedVisible = false;
     private bool isCategorySaveBusy = false;
-    private string? resultMessage = null;
     private string? specifiedCategory = null;
+
+    private static readonly NotificationMessage duplicateCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category already exists", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Warning, 
+        Summary = "Duplicate"
+    };
+
+    private static readonly NotificationMessage savedCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category saved successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    private NotificationMessage GetNotificationMessage(ResultType resultType)
+    {
+        return resultType == ResultType.Success 
+            ? savedCategoryMessage 
+            : duplicateCategoryMessage;
+    }
 
     private bool IsSaveCategoryButtonDisabled()
     {
@@ -36,20 +71,18 @@
     private void OnCategoryTextChanged(object? value)
     {
         specifiedCategory = value?.ToString();
-        isCategorySavedVisible = false;
     }
 
     private async Task OnSaveCategoryClicked()
     {
         isCategorySaveBusy = true;
 
-        var resultType = await this.KeywordService.CreateCategoryAsync(specifiedCategory);
-
-        // todo: result status bar or whatever
+        var resultType = await this.KeywordService.CreateCategoryAsync(
+            specifiedCategory);
+    
+        NotificationService.Notify(GetNotificationMessage(resultType));
 
         specifiedCategory = null;
-        resultMessage = resultType.ToString();
-        isCategorySavedVisible = true;
         isCategorySaveBusy = false;
     }
 }
