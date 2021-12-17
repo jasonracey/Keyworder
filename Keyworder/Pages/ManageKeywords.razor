@@ -1,0 +1,418 @@
+﻿@page "/manage-keywords"
+
+<PageTitle>Manage Keywords</PageTitle>
+
+@using Keyworder.Data
+@using Keyworder.Utilities
+@inject KeywordService KeywordService
+@inject NotificationService NotificationService
+
+<div class="row">
+    <div class="col">
+        <h2>Create Keyword</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenLabel 
+                Text="Category" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedCategoryForCreateKeyword 
+                Change=@(value => OnCategoryForKeywordCreateDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenTextBox 
+                @bind-Value=@specifiedKeywordToCreate 
+                Disabled=@IsSpecifyKeywordToCreateDisabled() 
+                MaxLength=50 
+                @oninput=@(args => OnCreateKeywordTextChanged(args?.Value)) 
+                Placeholder="Keyword..." />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton 
+                BusyText="Saving..." 
+                Click=@OnCreateKeywordClicked 
+                Disabled=@IsCreateKeywordButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isCreateKeywordBusy 
+                Text="Save" />
+        </div>
+        <div class="col">
+            <RadzenNotification />
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col">
+        <h2>Edit Keyword</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenLabel 
+                Text="Category" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedCategoryForEditKeyword
+                Change=@(value => OnCategoryForKeywordEditDropDownValueChanged(value))
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedKeywordToEdit
+                Change=@(value => OnEditKeywordDropDownValueChanged(value))
+                Data=@selectedKeywordsByCategory 
+                Disabled=@IsSelectKeywordToEditDisabled() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenTextBox 
+                @bind-Value=@specifiedKeywordToEdit 
+                Disabled=@IsSpecifyKeywordToEditDisabled() 
+                MaxLength=50 
+                @oninput=@(args => OnEditKeywordTextChanged(args?.Value))
+                Placeholder="Keyword..." />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton
+                BusyText="Saving..." 
+                Click=@OnEditKeywordClicked
+                Disabled=@IsEditKeywordButtonDisabled()
+                Icon="save" 
+                IsBusy=@isEditKeywordBusy 
+                Text="Save" />
+        </div>
+        <div class="col">
+            <RadzenNotification />
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col">
+        <h2>Delete Keyword</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenLabel 
+                Text="Category" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedCategoryForDeleteKeyword 
+                Change=@(value => OnCategoryForKeywordDeleteDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedKeywordToDelete Change=@(value => OnDeleteKeywordDropDownValueChanged(value)) 
+                Data=@GetKeywordsByCategory(selectedCategoryForDeleteKeyword) 
+                Disabled=@IsSelectKeywordToDeleteDisabled() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton 
+                BusyText="Deleting..." 
+                Click=@OnDeleteKeywordClicked 
+                Disabled=@IsDeleteKeywordButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isDeleteKeywordBusy 
+                Text="Delete" />
+        </div>
+        <div class="col">
+            <RadzenNotification />
+        </div>
+    </div>
+}
+
+@code {
+    private List<Keyword> allKeywords = new List<Keyword>();
+    private bool isCreateKeywordBusy = false;
+    private bool isDeleteKeywordBusy = false;
+    private bool isEditKeywordBusy = false;
+    private string? selectedCategoryForCreateKeyword = null;
+    private string? selectedCategoryForDeleteKeyword = null;
+    private string? selectedCategoryForEditKeyword = null;
+    private List<string> selectedKeywordsByCategory = new List<string>();
+    private string? selectedKeywordToDelete = null;
+    private string? selectedKeywordToEdit = null;
+    private string? specifiedKeywordToCreate = null;
+    private string? specifiedKeywordToEdit = null;
+
+    private static readonly NotificationMessage deleteKeywordMessage = new NotificationMessage 
+    { 
+        Detail = "Keyword deleted successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    private static readonly NotificationMessage duplicateKeywordMessage = new NotificationMessage 
+    { 
+        Detail = "Keyword already exists in this category", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Warning, 
+        Summary = "Duplicate"
+    };
+
+    private static readonly NotificationMessage saveKeywordMessage = new NotificationMessage 
+    { 
+        Detail = "Keyword saved successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        allKeywords = await GetAllKeywords();
+    }
+
+    private async Task<List<Keyword>> GetAllKeywords()
+    {
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        return keywordsEnumerable.ToList();
+    }
+
+    private List<string> GetCategories()
+    {
+        return allKeywords
+            .Where(keyword => keyword.IsCategory)
+            .Select(keyword => keyword.Name)
+            .Distinct()
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private List<string> GetKeywordsByCategory(string? category)
+    {
+        return string.IsNullOrWhiteSpace(category)
+            ? new List<string>()
+            : allKeywords
+                .Where(keyword => keyword.IsCategory)
+                .Where(keyword => keyword.Name.Equals(category, StringComparison.Ordinal))
+                .SelectMany(parentKeyword => parentKeyword.Children.Select(childKeyword => childKeyword.Name))
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    private NotificationMessage GetNotificationMessage(ResultType resultType)
+    {
+        return resultType == ResultType.Success 
+            ? saveKeywordMessage 
+            : duplicateKeywordMessage;
+    }
+
+    private bool IsCreateKeywordButtonDisabled()
+    {
+        return 
+            string.IsNullOrWhiteSpace(selectedCategoryForCreateKeyword) || 
+            string.IsNullOrWhiteSpace(specifiedKeywordToCreate);
+    }
+
+    private bool IsDeleteKeywordButtonDisabled()
+    {
+        return 
+            string.IsNullOrWhiteSpace(selectedCategoryForDeleteKeyword) || 
+            string.IsNullOrWhiteSpace(selectedKeywordToDelete);
+    }
+
+    private bool IsEditKeywordButtonDisabled()
+    {
+        return 
+            string.IsNullOrWhiteSpace(specifiedKeywordToEdit) ||
+            (
+                selectedKeywordToEdit != null && 
+                selectedKeywordToEdit.Equals(specifiedKeywordToEdit, StringComparison.Ordinal)
+            );
+    }
+
+    private bool IsSelectKeywordToEditDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategoryForEditKeyword);
+    }
+
+    private bool IsSelectKeywordToDeleteDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategoryForDeleteKeyword);
+    }
+
+    private bool IsSpecifyKeywordToCreateDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategoryForCreateKeyword);
+    }
+
+    private bool IsSpecifyKeywordToEditDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedKeywordToEdit);
+    }
+
+    private void OnCategoryForKeywordCreateDropDownValueChanged(object? value)
+    {
+        selectedCategoryForCreateKeyword = value?.ToString();
+    }
+
+    private void OnCategoryForKeywordDeleteDropDownValueChanged(object? value)
+    {
+        selectedCategoryForDeleteKeyword = value?.ToString();
+    }
+
+    private void OnCategoryForKeywordEditDropDownValueChanged(object? value)
+    {
+        selectedCategoryForEditKeyword = value?.ToString();
+        selectedKeywordsByCategory = selectedCategoryForEditKeyword != null
+            ? GetKeywordsByCategory(selectedCategoryForEditKeyword)
+            : new List<string>();
+        selectedKeywordToEdit = null;
+        specifiedKeywordToEdit = null;
+    }
+
+    private async Task OnCreateKeywordClicked()
+    {
+        SetFormState(FormState.Busy);
+
+        var resultType = await this.KeywordService.CreateKeywordAsync(
+            selectedCategoryForCreateKeyword, 
+            specifiedKeywordToCreate);
+
+        NotificationService.Notify(GetNotificationMessage(resultType));
+
+        await RefreshForm();
+
+        SetFormState(FormState.Idle);
+    }
+
+    private void OnCreateKeywordTextChanged(object? value)
+    {
+        specifiedKeywordToCreate = value?.ToString();
+    }
+
+    private async Task OnDeleteKeywordClicked()
+    {
+        SetFormState(FormState.Busy);
+
+        var resultType = await this.KeywordService.DeleteKeywordAsync(
+            selectedCategoryForDeleteKeyword, 
+            selectedKeywordToDelete);
+
+        NotificationService.Notify(deleteKeywordMessage);
+
+        await RefreshForm();
+
+        SetFormState(FormState.Idle);
+    }
+
+    private void OnDeleteKeywordDropDownValueChanged(object? value)
+    {
+        selectedKeywordToDelete = value?.ToString();
+    }
+
+    private async Task OnEditKeywordClicked()
+    {
+        SetFormState(FormState.Busy);
+
+        var resultType = await this.KeywordService.EditKeywordAsync(
+            selectedCategoryForEditKeyword, 
+            selectedKeywordToEdit, 
+            specifiedKeywordToEdit);
+
+        NotificationService.Notify(GetNotificationMessage(resultType));
+
+        await RefreshForm();
+
+        SetFormState(FormState.Idle);
+    }
+
+    private void OnEditKeywordDropDownValueChanged(object? value)
+    {
+        selectedKeywordToEdit = value?.ToString();
+        specifiedKeywordToEdit = selectedKeywordToEdit;
+    }
+
+    private void OnEditKeywordTextChanged(object? value)
+    {
+        specifiedKeywordToEdit = value?.ToString();
+    }
+
+    private async Task RefreshForm()
+    {
+        allKeywords = await GetAllKeywords();
+        selectedCategoryForCreateKeyword = null;
+        selectedCategoryForDeleteKeyword = null;
+        selectedCategoryForEditKeyword = null;
+        selectedKeywordToEdit = null;
+        specifiedKeywordToCreate = null;
+        selectedKeywordToDelete = null;
+        specifiedKeywordToEdit = null;
+    }
+
+    private void SetFormState(FormState formState)
+    {
+        var isBusy = formState == FormState.Busy;
+
+        isCreateKeywordBusy = isBusy;
+        isDeleteKeywordBusy = isBusy;
+        isEditKeywordBusy = isBusy;
+    }
+}
