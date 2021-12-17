@@ -1,0 +1,295 @@
+﻿@page "/manage-categories"
+
+<PageTitle>Manage Categories</PageTitle>
+
+@using Keyworder.Data
+@using Keyworder.Utilities
+@inject KeywordService KeywordService
+@inject NotificationService NotificationService
+
+<div class="row">
+    <div class="col">
+        <h2>Create Category</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenTextBox 
+            @bind-Value=@specifiedCategoryToCreate 
+            MaxLength=50 
+            @oninput=@(args => OnCreateCategoryTextChanged(args?.Value)) 
+            Placeholder="Category..." />
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenButton 
+            BusyText="Saving..." 
+            Click=@OnCreateCategoryClicked 
+            Disabled=@IsCreateCategoryButtonDisabled() 
+            Icon="save" 
+            IsBusy=@isCreateCategoryBusy 
+            Text="Save" />
+    </div>
+    <div class="col">
+        <RadzenNotification />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <h2>Edit Category</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedCategoryToEdit
+                Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenTextBox 
+                @bind-Value=@specifiedCategoryToEdit 
+                Disabled=@IsSpecifyCategoryToEditDisabled() 
+                MaxLength=50 
+                @oninput=@(args => OnEditCategoryTextChanged(args?.Value)) 
+                Placeholder="Category..." />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton 
+                BusyText="Saving..." 
+                Click=@OnEditCategoryClicked 
+                Disabled=@IsEditCategoryButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isEditCategoryBusy 
+                style="width: 160px" 
+                Text="Save" />
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col">
+        <h2>Delete Category</h2>
+    </div>
+</div>
+
+@if (allKeywords == null)
+{
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <RadzenDropDown 
+                @bind-Value=@selectedCategoryToDelete 
+                Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <RadzenButton 
+                BusyText="Deleting..." 
+                Click=@OnDeleteCategoryClicked 
+                Disabled=@IsDeleteCategoryButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isDeleteCategoryBusy 
+                Text="Delete" />
+        </div>
+        <div class="col">
+            <RadzenNotification />
+        </div>
+    </div>
+}
+
+@code {
+    private List<Keyword> allKeywords = new List<Keyword>();
+    private bool isCreateCategoryBusy = false;
+    private bool isDeleteCategoryBusy = false;
+    private bool isEditCategoryBusy = false;
+    private string? specifiedCategoryToCreate = null;
+    private string? specifiedCategoryToEdit = null;
+    private string? selectedCategoryToDelete = null;
+    private string? selectedCategoryToEdit = null;
+
+    private static readonly NotificationMessage deleteCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category deleted successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    private static readonly NotificationMessage duplicateCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category already exists", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Warning, 
+        Summary = "Duplicate"
+    };
+
+    private static readonly NotificationMessage saveCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category saved successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        allKeywords = await GetAllKeywords();
+    }
+
+    private async Task<List<Keyword>> GetAllKeywords()
+    {
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        return keywordsEnumerable.ToList();
+    }
+
+    private List<string> GetCategories()
+    {
+        return allKeywords
+            .Where(keyword => keyword.IsCategory)
+            .Select(keyword => keyword.Name)
+            .Distinct()
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private NotificationMessage GetNotificationMessage(ResultType resultType)
+    {
+        return resultType == ResultType.Success 
+            ? saveCategoryMessage 
+            : duplicateCategoryMessage;
+    }
+
+    private bool IsCreateCategoryButtonDisabled()
+    {
+        return string.IsNullOrWhiteSpace(specifiedCategoryToCreate);
+    }
+
+    private bool IsDeleteCategoryButtonDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategoryToDelete);
+    }
+
+    private bool IsEditCategoryButtonDisabled()
+    {
+        return 
+            string.IsNullOrWhiteSpace(specifiedCategoryToEdit) ||
+            (
+                selectedCategoryToEdit != null && 
+                selectedCategoryToEdit.Equals(specifiedCategoryToEdit, StringComparison.Ordinal)
+            );
+    }
+
+    private bool IsSpecifyCategoryToEditDisabled()
+    {
+        return string.IsNullOrWhiteSpace(selectedCategoryToEdit);
+    }
+
+    private async Task OnCreateCategoryClicked()
+    {
+        SetFormState(FormState.Busy);
+
+        var resultType = await this.KeywordService.CreateCategoryAsync(
+            specifiedCategoryToCreate);
+
+        NotificationService.Notify(GetNotificationMessage(resultType));
+
+        await RefreshForm();
+
+        SetFormState(FormState.Idle);
+    }
+
+    private void OnCreateCategoryTextChanged(object? value)
+    {
+        specifiedCategoryToCreate = value?.ToString();
+    }
+
+    private async Task OnDeleteCategoryClicked()
+    {
+        SetFormState(FormState.Busy);
+
+        var resultType = await this.KeywordService.DeleteCategoryAsync(
+            selectedCategoryToDelete);
+
+        NotificationService.Notify(deleteCategoryMessage);
+
+        await RefreshForm();
+
+        SetFormState(FormState.Idle);
+    }
+
+    private void OnDeleteCategoryDropDownValueChanged(object? value)
+    {
+        selectedCategoryToDelete = value?.ToString();
+    }
+
+    private async Task OnEditCategoryClicked()
+    {
+        SetFormState(FormState.Busy);
+
+        var resultType = await this.KeywordService.EditCategoryAsync(
+            selectedCategoryToEdit, 
+            specifiedCategoryToEdit);
+        
+        NotificationService.Notify(GetNotificationMessage(resultType));
+
+        await RefreshForm();
+
+        SetFormState(FormState.Idle);
+    }
+
+    private void OnEditCategoryDropDownValueChanged(object? value)
+    {
+        selectedCategoryToEdit = value?.ToString();
+        specifiedCategoryToEdit = selectedCategoryToEdit;
+    }
+
+    private void OnEditCategoryTextChanged(object? value)
+    {
+        specifiedCategoryToEdit = value?.ToString();
+    }
+
+    private async Task RefreshForm()
+    {
+        allKeywords = await GetAllKeywords();
+        selectedCategoryToDelete = null;
+        selectedCategoryToEdit = null;
+        specifiedCategoryToCreate = null;
+        specifiedCategoryToEdit = null;
+    }
+
+    private void SetFormState(FormState formState)
+    {
+        var isBusy = formState == FormState.Busy;
+
+        isCreateCategoryBusy = isBusy;
+        isDeleteCategoryBusy = isBusy;
+        isEditCategoryBusy = isBusy;
+    }
+}
