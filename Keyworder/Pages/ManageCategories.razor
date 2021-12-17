@@ -54,7 +54,7 @@ else
         <div class="col">
             <RadzenDropDown 
                 @bind-Value=@selectedCategoryToEdit
-                Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
+                Change=@(value => OnEditCategoryDropDownValueChanged(value)) 
                 Data=@GetCategories() 
                 Placeholder="Select..." 
                 TValue="string" />
