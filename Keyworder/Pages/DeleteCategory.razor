@@ -4,6 +4,7 @@
 
 @using Keyworder.Data
 @inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <div class="row">
     <div class="col">
@@ -21,27 +22,53 @@ else
 {
     <div class="row">
         <div class="col">
-            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetCategories() @bind-Value=@selectedCategory Change=@(value => OnCategoryDropDownValueChanged(value)) />
+            <RadzenDropDown 
+                @bind-Value=@selectedCategory 
+                Change=@(value => OnCategoryDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <RadzenButton style="width: 160px" Icon="save" BusyText="Deleting..." IsBusy=@isCategoryDeleteBusy Click=@OnDeleteCategoryClicked Text="Delete" Disabled=@IsDeleteCategoryButtonDisabled() />
-            <RadzenLabel Text=@resultMessage Visible=@isCategoryDeletedVisible />
+            <RadzenButton 
+                BusyText="Deleting..." 
+                Click=@OnDeleteCategoryClicked 
+                Disabled=@IsDeleteCategoryButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isCategoryDeleteBusy 
+                style="width: 160px" 
+                Text="Delete" />
+        </div>
+        <div class="col">
+            <RadzenNotification />
         </div>
     </div>
 }
 
 @code {
     private List<Keyword> allKeywords = new List<Keyword>();
-    private bool isCategoryDeletedVisible = false;
     private bool isCategoryDeleteBusy = false;
-    private string? resultMessage = null;
     private string? selectedCategory = null;
+
+    private static readonly NotificationMessage deletedCategoryMessage = new NotificationMessage 
+    { 
+        Detail = "Category deleted successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
+    }
+
+    private async Task<List<Keyword>> GetAllKeywords()
+    {
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        return keywordsEnumerable.ToList();
     }
 
     private List<string> GetCategories()
@@ -62,7 +89,6 @@ else
     private void OnCategoryDropDownValueChanged(object? value)
     {
         selectedCategory = value?.ToString();
-        isCategoryDeletedVisible = false;
     }
 
     private async Task OnDeleteCategoryClicked()
@@ -70,12 +96,11 @@ else
         isCategoryDeleteBusy = true;
 
         var resultType = await this.KeywordService.DeleteCategoryAsync(selectedCategory);
+        
+        NotificationService.Notify(deletedCategoryMessage);
 
-        // todo: result status bar or whatever
-        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
         selectedCategory = null;
-        resultMessage = resultType.ToString();
-        isCategoryDeletedVisible = true;
         isCategoryDeleteBusy = false;
     }
 }
