@@ -4,6 +4,7 @@
 
 @using Keyworder.Data
 @inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <div class="row">
     <div class="col">
@@ -21,38 +22,70 @@ else
 {
     <div class="row">
         <div class="col">
-            <RadzenLabel Text="Category" />
+            <RadzenLabel 
+                Text="Category" />
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetCategories() @bind-Value=@selectedCategory Change=@(value => OnCategoryDropDownValueChanged(value)) />
+            <RadzenDropDown 
+                @bind-Value=@selectedCategory 
+                Change=@(value => OnCategoryDropDownValueChanged(value)) 
+                Data=@GetCategories() 
+                Placeholder="Select..." 
+                TValue="string" />
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <RadzenDropDown TValue="string" Placeholder="Select..." Data=@GetKeywords(@selectedCategory) @bind-Value=@selectedKeyword Change=@(value => OnKeywordDropDownValueChanged(value)) Disabled=@IsKeywordDropDownDisabled() />
+            <RadzenDropDown 
+                @bind-Value=@selectedKeyword Change=@(value => OnKeywordDropDownValueChanged(value)) 
+                Data=@GetKeywords(@selectedCategory) 
+                Disabled=@IsKeywordDropDownDisabled() 
+                Placeholder="Select..." 
+                TValue="string" />
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <RadzenButton style="width: 160px" Icon="save" BusyText="Deleting..." IsBusy=@isKeywordDeleteBusy Click=@OnDeleteKeywordClicked Text="Delete" Disabled=@IsDeleteKeywordButtonDisabled() />
-            <RadzenLabel Text=@resultMessage Visible=@isKeywordDeletedVisible />
+            <RadzenButton 
+                BusyText="Deleting..." 
+                Click=@OnDeleteKeywordClicked 
+                Disabled=@IsDeleteKeywordButtonDisabled() 
+                Icon="save" 
+                IsBusy=@isKeywordDeleteBusy 
+                style="width: 160px" 
+                Text="Delete" />
+        </div>
+        <div class="col">
+            <RadzenNotification />
         </div>
     </div>
 }
 
 @code {
     private List<Keyword> allKeywords = new List<Keyword>();
-    private bool isKeywordDeletedVisible = false;
     private bool isKeywordDeleteBusy = false;
-    private string? resultMessage = null;
     private string? selectedCategory = null;
     private string? selectedKeyword = null;
 
+    private static readonly NotificationMessage deleteKeywordMessage = new NotificationMessage 
+    { 
+        Detail = "Keyword deleted successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
     protected override async Task OnInitializedAsync()
     {
-        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
+    }
+
+    private async Task<List<Keyword>> GetAllKeywords()
+    {
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        return keywordsEnumerable.ToList();
     }
 
     private List<string> GetCategories()
@@ -92,28 +125,27 @@ else
     private void OnCategoryDropDownValueChanged(object? value)
     {
         selectedCategory = value?.ToString();
-        isKeywordDeletedVisible = false;
     }
 
     private void OnKeywordDropDownValueChanged(object? value)
     {
         selectedKeyword = value?.ToString();
-        isKeywordDeletedVisible = false;
     }
 
     private async Task OnDeleteKeywordClicked()
     {
         isKeywordDeleteBusy = true;
 
-        var resultType = await this.KeywordService.DeleteKeywordAsync(selectedCategory, selectedKeyword);
+        var resultType = await this.KeywordService.DeleteKeywordAsync(
+            selectedCategory, 
+            selectedKeyword);
 
-        // todo: result status bar or whatever
+        NotificationService.Notify(deleteKeywordMessage);
 
-        allKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
+
         selectedCategory = null;
         selectedKeyword = null;
-        resultMessage = resultType.ToString();
-        isKeywordDeletedVisible = true;
         isKeywordDeleteBusy = false;
     }
 }
