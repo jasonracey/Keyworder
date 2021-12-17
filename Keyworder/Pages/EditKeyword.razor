@@ -22,6 +22,12 @@ else
 {
     <div class="row">
         <div class="col">
+            <RadzenLabel 
+                Text="Category" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
             <RadzenDropDown 
                 @bind-Value=@selectedCategory
                 Change=@(value => OnCategoryDropDownValueChanged(value))
