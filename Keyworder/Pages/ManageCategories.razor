@@ -133,7 +133,15 @@ else
     private string? specifiedCategoryToCreate = null;
     private string? specifiedCategoryToEdit = null;
 
-    private static readonly NotificationMessage deleteCategoryMessage = new NotificationMessage 
+    private static readonly NotificationMessage createdMessage = new NotificationMessage 
+    { 
+        Detail = "Category created successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    private static readonly NotificationMessage deletedMessage = new NotificationMessage 
     { 
         Detail = "Category deleted successfully", 
         Duration = 2000,
@@ -141,7 +149,7 @@ else
         Summary = "Success"
     };
 
-    private static readonly NotificationMessage duplicateCategoryMessage = new NotificationMessage 
+    private static readonly NotificationMessage duplicateMessage = new NotificationMessage 
     { 
         Detail = "Category already exists", 
         Duration = 2000,
@@ -149,12 +157,20 @@ else
         Summary = "Duplicate"
     };
 
-    private static readonly NotificationMessage saveCategoryMessage = new NotificationMessage 
+    private static readonly NotificationMessage editedMessage = new NotificationMessage 
     { 
-        Detail = "Category saved successfully", 
+        Detail = "Category edited successfully", 
         Duration = 2000,
         Severity = NotificationSeverity.Success, 
         Summary = "Success"
+    };
+
+    private static readonly NotificationMessage errorMessage = new NotificationMessage 
+    { 
+        Detail = "Sorry there was an error", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Error, 
+        Summary = "Error"
     };
 
     protected override async Task OnInitializedAsync()
@@ -180,9 +196,15 @@ else
 
     private NotificationMessage GetNotificationMessage(ResultType resultType)
     {
-        return resultType == ResultType.Success 
-            ? saveCategoryMessage 
-            : duplicateCategoryMessage;
+        return resultType switch
+        {
+            ResultType.Created => createdMessage,
+            ResultType.Deleted => deletedMessage,
+            ResultType.Duplicate => duplicateMessage,
+            ResultType.Edited => editedMessage,
+            ResultType.Error => errorMessage,
+            _ => throw new KeyworderException($"ResultType {resultType} does not have a NotificationMessage mapping configured ")
+        };
     }
 
     private bool IsCreateCategoryButtonDisabled()
@@ -236,7 +258,7 @@ else
         var resultType = await this.KeywordService.DeleteCategoryAsync(
             selectedCategoryToDelete);
 
-        NotificationService.Notify(deleteCategoryMessage);
+        NotificationService.Notify(GetNotificationMessage(resultType));
 
         await RefreshForm();
 

@@ -200,7 +200,15 @@ else
     private string? specifiedKeywordToCreate = null;
     private string? specifiedKeywordToEdit = null;
 
-    private static readonly NotificationMessage deleteKeywordMessage = new NotificationMessage 
+    private static readonly NotificationMessage createdMessage = new NotificationMessage 
+    { 
+        Detail = "Keyword created successfully", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Success, 
+        Summary = "Success"
+    };
+
+    private static readonly NotificationMessage deletedMessage = new NotificationMessage 
     { 
         Detail = "Keyword deleted successfully", 
         Duration = 2000,
@@ -208,20 +216,28 @@ else
         Summary = "Success"
     };
 
-    private static readonly NotificationMessage duplicateKeywordMessage = new NotificationMessage 
+    private static readonly NotificationMessage duplicateMessage = new NotificationMessage 
     { 
-        Detail = "Keyword already exists in this category", 
+        Detail = "Keyword already exists", 
         Duration = 2000,
         Severity = NotificationSeverity.Warning, 
         Summary = "Duplicate"
     };
 
-    private static readonly NotificationMessage saveKeywordMessage = new NotificationMessage 
+    private static readonly NotificationMessage editedMessage = new NotificationMessage 
     { 
-        Detail = "Keyword saved successfully", 
+        Detail = "Keyword edited successfully", 
         Duration = 2000,
         Severity = NotificationSeverity.Success, 
         Summary = "Success"
+    };
+
+    private static readonly NotificationMessage errorMessage = new NotificationMessage 
+    { 
+        Detail = "Sorry there was an error", 
+        Duration = 2000,
+        Severity = NotificationSeverity.Error, 
+        Summary = "Error"
     };
 
     protected override async Task OnInitializedAsync()
@@ -259,9 +275,15 @@ else
 
     private NotificationMessage GetNotificationMessage(ResultType resultType)
     {
-        return resultType == ResultType.Success 
-            ? saveKeywordMessage 
-            : duplicateKeywordMessage;
+        return resultType switch
+        {
+            ResultType.Created => createdMessage,
+            ResultType.Deleted => deletedMessage,
+            ResultType.Duplicate => duplicateMessage,
+            ResultType.Edited => editedMessage,
+            ResultType.Error => errorMessage,
+            _ => throw new KeyworderException($"ResultType {resultType} does not have a NotificationMessage mapping configured ")
+        };
     }
 
     private bool IsCreateKeywordButtonDisabled()
@@ -356,7 +378,7 @@ else
             selectedCategoryForDeleteKeyword, 
             selectedKeywordToDelete);
 
-        NotificationService.Notify(deleteKeywordMessage);
+        NotificationService.Notify(GetNotificationMessage(resultType));
 
         await RefreshForm();
 

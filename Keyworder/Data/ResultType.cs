@@ -4,6 +4,10 @@
     {
         None = 0,
         Success,
-        Duplicate
+        Created,
+        Edited,
+        Deleted,
+        Duplicate,
+        Error
     }
 }
