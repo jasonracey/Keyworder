@@ -10,7 +10,7 @@
 
 <h2>Select Keywords</h2>
 
-@if (AllKeywords == null)
+@if (allKeywords == null)
 {
     <div class="spinner-border" role="status">
       <span class="sr-only">Loading...</span>
@@ -20,7 +20,7 @@ else
 {
     <div class="row">
         <div class="col">
-            <TreeView @key=@SelectedKeywords Items=@AllKeywords ItemDisabled="keyword => IsKeywordDisabled(keyword)" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Children" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="SelectedKeywords">
+            <TreeView @key=@selectedKeywords Items=@allKeywords ItemDisabled="keyword => IsKeywordDisabled(keyword)" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Children" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="selectedKeywords">
                 <ItemTemplate>
                     @context.Item.Name
                 </ItemTemplate>
@@ -32,28 +32,34 @@ else
             <RadzenButton Text="Clear" Disabled=@IsSelectedKeywordsEmpty() Click=@ClearSelectedKeywords />
         </div>
         <div class="col">
-            <RadzenButton Text="Copy" Disabled=@IsSelectedKeywordsEmpty() Click="@(() => CopyToClipboard(ToFlickrTagsString(SelectedKeywords)))" />
+            <RadzenButton Text="Copy" Disabled=@IsSelectedKeywordsEmpty() Click="@(() => CopyToClipboard(ToFlickrTagsString(selectedKeywords)))" />
         </div>
     </div>
 }
 
 @code {
-    private List<Keyword> AllKeywords = new List<Keyword>();
-    private List<Keyword> SelectedKeywords = new List<Keyword>();
+    private List<Keyword> allKeywords = new List<Keyword>();
+    private List<Keyword> selectedKeywords = new List<Keyword>();
 
     protected override async Task OnInitializedAsync()
     {
-        AllKeywords = (await KeywordService.GetKeywordsAsync()).ToList();
+        allKeywords = await GetAllKeywords();
     }
 
     private void ClearSelectedKeywords()
     {
-        SelectedKeywords = new List<Keyword>();
+        selectedKeywords = new List<Keyword>();
     }
 
     private async Task CopyToClipboard(string input)
     {
         await ClipboardService.WriteTextAsync(input);
+    }
+
+    private async Task<List<Keyword>> GetAllKeywords()
+    {
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        return keywordsEnumerable.ToList();
     }
 
     private bool IsKeywordDisabled(Keyword keyword)
@@ -64,7 +70,7 @@ else
 
     private bool IsSelectedKeywordsEmpty()
     {
-        return SelectedKeywords
+        return selectedKeywords
             .Where(keyword => !keyword.IsCategory)
             .Count() == 0;
     }
