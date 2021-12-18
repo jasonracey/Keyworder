@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.2" />
+    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Radzen.Blazor" Version="3.13.3" />
+    <PackageReference Include="Radzen.Blazor" Version="3.13.7" />
   </ItemGroup>
 
 </Project>
