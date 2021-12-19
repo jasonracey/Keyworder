@@ -1,0 +1,12 @@
+﻿::deep .tree-item svg {
+    margin-bottom: 5px;
+}
+
+::deep .tree-item input {
+    margin-left: 5px;
+}
+
+::deep .tree-item span {
+    margin-left: 5px;
+    margin-bottom: 5px;
+}

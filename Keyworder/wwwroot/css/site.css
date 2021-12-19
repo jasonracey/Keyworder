@@ -60,16 +60,3 @@ a, .btn-link {
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
-
-.tree-item svg {
-    margin-bottom: 5px;
-}
-
-.tree-item input {
-    margin-left: 5px;
-}
-
-.tree-item span {
-    margin-left: 5px;
-    margin-bottom: 5px;
-}
