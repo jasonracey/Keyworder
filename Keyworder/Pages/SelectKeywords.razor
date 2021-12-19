@@ -20,7 +20,16 @@ else
 {
     <div class="row">
         <div class="col">
-            <TreeView @key=@selectedKeywords Items=@allKeywords ItemDisabled="keyword => IsKeywordDisabled(keyword)" InitiallyCollapsed="true" AllowSelection="true" ItemClass="tree-item" GetChildren="(keywords) => keywords.Children" SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)" @bind-SelectedItems="selectedKeywords">
+            <TreeView 
+                AllowSelection="true" 
+                @bind-SelectedItems="selectedKeywords"
+                GetChildren="(keywords) => keywords.Children" 
+                InitiallyCollapsed="true" 
+                ItemClass="tree-item" 
+                ItemDisabled="keyword => IsKeywordDisabled(keyword)" 
+                Items=@allKeywords 
+                @key=@selectedKeywords 
+                SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)">
                 <ItemTemplate>
                     @context.Item.Name
                 </ItemTemplate>
@@ -29,10 +38,18 @@ else
     </div>
     <div class="row">
         <div class="col">
-            <RadzenButton Text="Clear" Disabled=@IsSelectedKeywordsEmpty() Click=@ClearSelectedKeywords />
+            <RadzenButton 
+                ButtonStyle="ButtonStyle.Info" 
+                Click=@ClearSelectedKeywords 
+                Disabled=@IsSelectedKeywordsEmpty() 
+                Text="Clear" />
         </div>
         <div class="col">
-            <RadzenButton Text="Copy" Disabled=@IsSelectedKeywordsEmpty() Click="@(() => CopyToClipboard(ToFlickrTagsString(selectedKeywords)))" />
+            <RadzenButton 
+                ButtonStyle="ButtonStyle.Info" 
+                Click="@(() => CopyToClipboard(ToFlickrTagsString(selectedKeywords)))" 
+                Disabled=@IsSelectedKeywordsEmpty() 
+                Text="Copy" />
         </div>
     </div>
 }
