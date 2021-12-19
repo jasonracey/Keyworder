@@ -61,14 +61,6 @@ a, .btn-link {
     content: "An error has occurred."
 }
 
-.keyworder-nav-link:hover {
-    text-decoration: none
-}
-
-.rzi {
-    margin: 1rem;
-}
-
 .tree-item svg {
     margin-bottom: 5px;
 }
