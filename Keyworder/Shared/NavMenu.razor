@@ -1,6 +1,9 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <RadzenLink class="keyworder-nav-link navbar-brand" Path="select-keywords" Text="Keyworder"/>
+        <RadzenLink 
+            class="navbar-brand" 
+            Path="select-keywords" 
+            Text="Keyworder"/>
         <RadzenButton 
             ButtonStyle="ButtonStyle.Info"
             class="navbar-toggler"
@@ -12,13 +15,22 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <RadzenLink class="keyworder-nav-link" Icon="account_tree" Path="select-keywords" Text="Select Keywords"/>
+            <RadzenLink 
+                Icon="account_tree" 
+                Path="select-keywords" 
+                Text="Select Keywords"/>
         </div>
         <div class="nav-item px-3">
-            <RadzenLink class="keyworder-nav-link" Icon="category" Path="manage-categories" Text="Manage Categories"/>
+            <RadzenLink 
+                Icon="category" 
+                Path="manage-categories" 
+                Text="Manage Categories"/>
         </div>
         <div class="nav-item px-3">
-            <RadzenLink class="keyworder-nav-link" Icon="key" Path="manage-keywords" Text="Manage Keywords"/>
+            <RadzenLink 
+                Icon="key" 
+                Path="manage-keywords" 
+                Text="Manage Keywords"/>
         </div>
     </nav>
 </div>
