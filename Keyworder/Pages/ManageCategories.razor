@@ -25,6 +25,7 @@
     <div class="col">
         <RadzenButton 
             BusyText="Saving..." 
+            ButtonStyle="ButtonStyle.Info"
             Click=@OnCreateCategoryClicked 
             Disabled=@IsCreateCategoryButtonDisabled() 
             Icon="save" 
@@ -74,6 +75,7 @@ else
         <div class="col">
             <RadzenButton 
                 BusyText="Saving..." 
+                ButtonStyle="ButtonStyle.Info"
                 Click=@OnEditCategoryClicked 
                 Disabled=@IsEditCategoryButtonDisabled() 
                 Icon="save" 
@@ -111,9 +113,10 @@ else
         <div class="col">
             <RadzenButton 
                 BusyText="Deleting..." 
+                ButtonStyle="ButtonStyle.Danger"
                 Click=@OnDeleteCategoryClicked 
                 Disabled=@IsDeleteCategoryButtonDisabled() 
-                Icon="save" 
+                Icon="report"
                 IsBusy=@isDeleteCategoryBusy 
                 Text="Delete" />
         </div>

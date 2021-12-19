@@ -51,6 +51,7 @@ else
         <div class="col">
             <RadzenButton 
                 BusyText="Saving..." 
+                ButtonStyle="ButtonStyle.Info"
                 Click=@OnCreateKeywordClicked 
                 Disabled=@IsCreateKeywordButtonDisabled() 
                 Icon="save" 
@@ -118,6 +119,7 @@ else
         <div class="col">
             <RadzenButton
                 BusyText="Saving..." 
+                ButtonStyle="ButtonStyle.Info"
                 Click=@OnEditKeywordClicked
                 Disabled=@IsEditKeywordButtonDisabled()
                 Icon="save" 
@@ -174,9 +176,10 @@ else
         <div class="col">
             <RadzenButton 
                 BusyText="Deleting..." 
+                ButtonStyle="ButtonStyle.Danger"
                 Click=@OnDeleteKeywordClicked 
                 Disabled=@IsDeleteKeywordButtonDisabled() 
-                Icon="save" 
+                Icon="report"
                 IsBusy=@isDeleteKeywordBusy 
                 Text="Delete" />
         </div>
