@@ -7,42 +7,6 @@
 @inject KeywordService KeywordService
 @inject NotificationService NotificationService
 
-<div class="row">
-    <div class="col">
-        <h2>Create Category</h2>
-    </div>
-</div>
-<div class="row">
-    <div class="col">
-        <RadzenTextBox 
-            @bind-Value=@specifiedCategoryToCreate 
-            MaxLength=50 
-            @oninput=@(args => OnCreateCategoryTextChanged(args?.Value)) 
-            Placeholder="Category..." />
-    </div>
-</div>
-<div class="row">
-    <div class="col">
-        <RadzenButton 
-            BusyText="Saving..." 
-            ButtonStyle="ButtonStyle.Info"
-            Click=@OnCreateCategoryClicked 
-            Disabled=@IsCreateCategoryButtonDisabled() 
-            Icon="save" 
-            IsBusy=@isCreateCategoryBusy 
-            Text="Save" />
-    </div>
-    <div class="col">
-        <RadzenNotification />
-    </div>
-</div>
-
-<div class="row">
-    <div class="col">
-        <h2>Edit Category</h2>
-    </div>
-</div>
-
 @if (allKeywords == null)
 {
     <div class="spinner-border" role="status">
@@ -52,89 +16,96 @@
 else
 {
     <div class="row">
-        <div class="col">
-            <RadzenDropDown 
-                @bind-Value=@selectedCategoryToEdit
-                Change=@(value => OnEditCategoryDropDownValueChanged(value)) 
-                Data=@GetCategories() 
-                Placeholder="Select..." 
-                TValue="string" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <RadzenTextBox 
-                @bind-Value=@specifiedCategoryToEdit 
-                Disabled=@IsSpecifyCategoryToEditDisabled() 
-                MaxLength=50 
-                @oninput=@(args => OnEditCategoryTextChanged(args?.Value)) 
-                Placeholder="Category..." />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
+        <RadzenFieldset Text="Manage Categories">
+            <RadzenTabs SelectedIndex="0">
+                <Tabs>
+                    <RadzenTabsItem 
+                        @onclick=@(() => OnTabItemClicked(ChangeMode.Create))
+                        Text="Create Category">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Name" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenTextBox 
+                                    @bind-Value=@textBoxValue 
+                                    MaxLength=50 
+                                    @oninput=@(args => OnCreateCategoryTextChanged(args?.Value)) 
+                                    Placeholder="Category..." />
+                            </div>
+                        </div>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem 
+                        @onclick=@(() => OnTabItemClicked(ChangeMode.Edit))
+                        Text="Edit Category">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Select" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@dropDownValue
+                                    Change=@(value => OnEditCategoryDropDownValueChanged(value)) 
+                                    Data=@GetCategories() 
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Name" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenTextBox 
+                                    @bind-Value=@textBoxValue 
+                                    MaxLength=50 
+                                    @oninput=@(args => OnCreateCategoryTextChanged(args?.Value)) 
+                                    Placeholder="Category..." />
+                            </div>
+                        </div>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem 
+                        @onclick=@(() => OnTabItemClicked(ChangeMode.Delete))
+                        Text="Delete Category">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Select" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@dropDownValue
+                                    Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
+                                    Data=@GetCategories() 
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                            </div>
+                        </div>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
             <RadzenButton 
-                BusyText="Saving..." 
-                ButtonStyle="ButtonStyle.Info"
-                Click=@OnEditCategoryClicked 
-                Disabled=@IsEditCategoryButtonDisabled() 
-                Icon="save" 
-                IsBusy=@isEditCategoryBusy 
-                Text="Save" />
-        </div>
-    </div>
-}
-
-<div class="row">
-    <div class="col">
-        <h2>Delete Category</h2>
-    </div>
-</div>
-
-@if (allKeywords == null)
-{
-    <div class="spinner-border" role="status">
-      <span class="sr-only">Loading...</span>
-    </div>
-}
-else
-{
-    <div class="row">
-        <div class="col">
-            <RadzenDropDown 
-                @bind-Value=@selectedCategoryToDelete 
-                Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
-                Data=@GetCategories() 
-                Placeholder="Select..." 
-                TValue="string" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <RadzenButton 
-                BusyText="Deleting..." 
-                ButtonStyle="ButtonStyle.Danger"
-                Click=@OnDeleteCategoryClicked 
-                Disabled=@IsDeleteCategoryButtonDisabled() 
-                Icon="report"
-                IsBusy=@isDeleteCategoryBusy 
-                Text="Delete" />
-        </div>
-        <div class="col">
+                BusyText=@GetSaveBusyText(currentChangeMode)
+                ButtonStyle=@GetSaveButtonStyle(currentChangeMode)
+                Click=@(() => OnSaveButtonClicked(currentChangeMode, dropDownValue, textBoxValue))
+                Disabled=@IsSaveButtonDisabled(currentChangeMode, dropDownValue, textBoxValue)
+                Icon=@GetSaveButtonIcon(currentChangeMode)
+                IsBusy=@IsSaveButtonBusy(currentFormState)
+                Text=@GetSaveButtonText(currentChangeMode) />
             <RadzenNotification />
-        </div>
+        </RadzenFieldset>
     </div>
 }
 
 @code {
     private List<Keyword> allKeywords = new List<Keyword>();
-    private bool isCreateCategoryBusy = false;
-    private bool isDeleteCategoryBusy = false;
-    private bool isEditCategoryBusy = false;
-    private string? selectedCategoryToDelete = null;
-    private string? selectedCategoryToEdit = null;
-    private string? specifiedCategoryToCreate = null;
-    private string? specifiedCategoryToEdit = null;
+    private ChangeMode currentChangeMode = ChangeMode.Create;
+    private FormState currentFormState = FormState.Idle;
+    private string? dropDownValue = null;
+    private string? textBoxValue = null;
 
     private static readonly NotificationMessage createdMessage = new NotificationMessage 
     { 
@@ -187,6 +158,34 @@ else
         return keywordsEnumerable.ToList();
     }
 
+    private string GetSaveBusyText(ChangeMode changeMode)
+    {
+        return changeMode == ChangeMode.Delete
+            ? "Deleting..."
+            : "Saving...";
+    }
+
+    private string GetSaveButtonIcon(ChangeMode changeMode)
+    {
+        return changeMode == ChangeMode.Delete
+            ? "report"
+            : "save";
+    }
+
+    private ButtonStyle GetSaveButtonStyle(ChangeMode changeMode)
+    {
+        return changeMode == ChangeMode.Delete
+            ? ButtonStyle.Danger
+            : ButtonStyle.Info;
+    }
+
+    private string GetSaveButtonText(ChangeMode changeMode)
+    {
+        return changeMode == ChangeMode.Delete
+            ? "Delete"
+            : "Save";
+    }
+
     private List<string> GetCategories()
     {
         return allKeywords
@@ -206,114 +205,172 @@ else
             ResultType.Duplicate => duplicateMessage,
             ResultType.Edited => editedMessage,
             ResultType.Error => errorMessage,
-            _ => throw new KeyworderException($"ResultType {resultType} does not have a NotificationMessage mapping configured ")
+            _ => throw new KeyworderException($"No value configured for ResultType.{resultType}")
         };
     }
 
-    private bool IsCreateCategoryButtonDisabled()
+    private bool IsSaveButtonDisabledForCreate(string? textBoxValue)
     {
-        return string.IsNullOrWhiteSpace(specifiedCategoryToCreate);
+        return string.IsNullOrWhiteSpace(textBoxValue);
     }
 
-    private bool IsDeleteCategoryButtonDisabled()
+    private bool IsSaveButtonDisabledForDelete(string? dropDownValue)
     {
-        return string.IsNullOrWhiteSpace(selectedCategoryToDelete);
+        return string.IsNullOrWhiteSpace(dropDownValue);
     }
 
-    private bool IsEditCategoryButtonDisabled()
+    private bool IsSaveButtonDisabledForEdit(string? dropDownValue, string? textBoxValue)
     {
         return 
-            string.IsNullOrWhiteSpace(specifiedCategoryToEdit) ||
+            string.IsNullOrWhiteSpace(textBoxValue) ||
             (
-                selectedCategoryToEdit != null && 
-                selectedCategoryToEdit.Equals(specifiedCategoryToEdit, StringComparison.Ordinal)
+                dropDownValue != null && 
+                dropDownValue.Equals(textBoxValue, StringComparison.Ordinal)
             );
     }
 
-    private bool IsSpecifyCategoryToEditDisabled()
+    private bool IsSaveButtonBusy(FormState formState)
     {
-        return string.IsNullOrWhiteSpace(selectedCategoryToEdit);
+        return formState == FormState.Busy;
     }
 
-    private async Task OnCreateCategoryClicked()
+    private bool IsSaveButtonDisabled(
+        ChangeMode changeMode,
+        string? dropDownValue,
+        string? textBoxValue)
     {
+        return changeMode switch
+        {
+            ChangeMode.Create => IsSaveButtonDisabledForCreate(textBoxValue),
+            ChangeMode.Edit => IsSaveButtonDisabledForEdit(dropDownValue, textBoxValue),
+            ChangeMode.Delete => IsSaveButtonDisabledForDelete(dropDownValue),
+            _ => throw new KeyworderException($"No value configured for ChangeMode.{changeMode}")
+        };
+    }
+
+    private bool IsSpecifyCategoryToEditDisabled(string dropDownValue)
+    {
+        return string.IsNullOrWhiteSpace(dropDownValue);
+    }
+
+    private async Task OnSaveButtonClicked(
+        ChangeMode changeMode,
+        string? dropDownValue,
+        string? textBoxValue)
+    {
+        switch (changeMode)
+        {
+            case ChangeMode.Create:
+                await OnCreateCategory(textBoxValue);
+                break;
+            case ChangeMode.Edit:
+                await OnEditCategory(dropDownValue, textBoxValue);
+                break;
+            case ChangeMode.Delete:
+                await OnDeleteCategory(dropDownValue);
+                break;
+            default:
+                throw new KeyworderException($"No action configured for ChangeMode.{changeMode}");
+        }
+    }
+
+    private async Task OnCreateCategory(string? textBoxValue)
+    {
+        if (string.IsNullOrWhiteSpace(textBoxValue))
+            throw new ArgumentNullException(nameof(textBoxValue));
+
         SetFormState(FormState.Busy);
 
         var resultType = await this.KeywordService.CreateCategoryAsync(
-            specifiedCategoryToCreate);
+            textBoxValue);
 
         NotificationService.Notify(GetNotificationMessage(resultType));
 
-        await RefreshForm();
+        await ResetForm();
 
         SetFormState(FormState.Idle);
     }
 
     private void OnCreateCategoryTextChanged(object? value)
     {
-        specifiedCategoryToCreate = value?.ToString();
+        textBoxValue = value?.ToString();
     }
 
-    private async Task OnDeleteCategoryClicked()
+    private async Task OnDeleteCategory(string? dropDownValue)
     {
+        if (string.IsNullOrWhiteSpace(dropDownValue))
+            throw new ArgumentNullException(nameof(dropDownValue));
+
         SetFormState(FormState.Busy);
 
         var resultType = await this.KeywordService.DeleteCategoryAsync(
-            selectedCategoryToDelete);
+            dropDownValue);
 
         NotificationService.Notify(GetNotificationMessage(resultType));
 
-        await RefreshForm();
+        await ResetForm();
 
         SetFormState(FormState.Idle);
     }
 
     private void OnDeleteCategoryDropDownValueChanged(object? value)
     {
-        selectedCategoryToDelete = value?.ToString();
+        dropDownValue = value?.ToString();
     }
 
-    private async Task OnEditCategoryClicked()
+    private async Task OnEditCategory(
+        string? dropDownValue, 
+        string? textBoxValue)
     {
+        if (string.IsNullOrWhiteSpace(dropDownValue))
+            throw new ArgumentNullException(nameof(dropDownValue));
+        if (string.IsNullOrWhiteSpace(textBoxValue))
+            throw new ArgumentNullException(nameof(textBoxValue));
+
         SetFormState(FormState.Busy);
 
         var resultType = await this.KeywordService.EditCategoryAsync(
-            selectedCategoryToEdit, 
-            specifiedCategoryToEdit);
-        
+            dropDownValue, 
+            textBoxValue);
+
         NotificationService.Notify(GetNotificationMessage(resultType));
 
-        await RefreshForm();
+        await ResetForm();
 
         SetFormState(FormState.Idle);
     }
 
     private void OnEditCategoryDropDownValueChanged(object? value)
     {
-        selectedCategoryToEdit = value?.ToString();
-        specifiedCategoryToEdit = selectedCategoryToEdit;
+        dropDownValue = value?.ToString();
+        textBoxValue = dropDownValue;
     }
 
     private void OnEditCategoryTextChanged(object? value)
     {
-        specifiedCategoryToEdit = value?.ToString();
+        textBoxValue = value?.ToString();
     }
 
-    private async Task RefreshForm()
+    private void OnTabItemClicked(ChangeMode changeMode)
+    {
+        currentChangeMode = changeMode;
+        ResetUserInput();
+    }
+
+    private async Task ResetForm()
     {
         allKeywords = await GetAllKeywords();
-        selectedCategoryToDelete = null;
-        selectedCategoryToEdit = null;
-        specifiedCategoryToCreate = null;
-        specifiedCategoryToEdit = null;
+        ResetUserInput();
+    }
+
+    private void ResetUserInput()
+    {
+        dropDownValue = null;
+        textBoxValue = null;
     }
 
     private void SetFormState(FormState formState)
     {
-        var isBusy = formState == FormState.Busy;
-
-        isCreateCategoryBusy = isBusy;
-        isDeleteCategoryBusy = isBusy;
-        isEditCategoryBusy = isBusy;
+        currentFormState = formState;
     }
 }
