@@ -105,47 +105,7 @@ else
     private ChangeMode currentChangeMode = ChangeMode.Create;
     private FormState currentFormState = FormState.Idle;
     private string? dropDownValue = null;
-    private string? textBoxValue = null;
-
-    private static readonly NotificationMessage createdMessage = new NotificationMessage 
-    { 
-        Detail = "Category created successfully", 
-        Duration = 2000,
-        Severity = NotificationSeverity.Success, 
-        Summary = "Success"
-    };
-
-    private static readonly NotificationMessage deletedMessage = new NotificationMessage 
-    { 
-        Detail = "Category deleted successfully", 
-        Duration = 2000,
-        Severity = NotificationSeverity.Success, 
-        Summary = "Success"
-    };
-
-    private static readonly NotificationMessage duplicateMessage = new NotificationMessage 
-    { 
-        Detail = "Category already exists", 
-        Duration = 2000,
-        Severity = NotificationSeverity.Warning, 
-        Summary = "Duplicate"
-    };
-
-    private static readonly NotificationMessage editedMessage = new NotificationMessage 
-    { 
-        Detail = "Category edited successfully", 
-        Duration = 2000,
-        Severity = NotificationSeverity.Success, 
-        Summary = "Success"
-    };
-
-    private static readonly NotificationMessage errorMessage = new NotificationMessage 
-    { 
-        Detail = "Sorry there was an error", 
-        Duration = 2000,
-        Severity = NotificationSeverity.Error, 
-        Summary = "Error"
-    };
+    private string? textBoxValue = null;   
 
     protected override async Task OnInitializedAsync()
     {
@@ -200,11 +160,11 @@ else
     {
         return resultType switch
         {
-            ResultType.Created => createdMessage,
-            ResultType.Deleted => deletedMessage,
-            ResultType.Duplicate => duplicateMessage,
-            ResultType.Edited => editedMessage,
-            ResultType.Error => errorMessage,
+            ResultType.Created => MessageBuilder.BuildCreatedMessage(EntityType.Category),
+            ResultType.Deleted => MessageBuilder.BuildDeletedMessage(EntityType.Category),
+            ResultType.Duplicate => MessageBuilder.BuildDuplicateMessage(EntityType.Category),
+            ResultType.Edited => MessageBuilder.BuildEditedMessage(EntityType.Category),
+            ResultType.Error => MessageBuilder.BuildErrorMessage(),
             _ => throw new KeyworderException($"No value configured for ResultType.{resultType}")
         };
     }
