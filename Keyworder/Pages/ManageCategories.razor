@@ -213,27 +213,6 @@ else
         return string.IsNullOrWhiteSpace(dropDownValue);
     }
 
-    private async Task OnSaveButtonClicked(
-        ChangeMode changeMode,
-        string? dropDownValue,
-        string? textBoxValue)
-    {
-        switch (changeMode)
-        {
-            case ChangeMode.Create:
-                await OnCreateCategory(textBoxValue);
-                break;
-            case ChangeMode.Edit:
-                await OnEditCategory(dropDownValue, textBoxValue);
-                break;
-            case ChangeMode.Delete:
-                await OnDeleteCategory(dropDownValue);
-                break;
-            default:
-                throw new KeyworderException($"No action configured for ChangeMode.{changeMode}");
-        }
-    }
-
     private async Task OnCreateCategory(string? textBoxValue)
     {
         if (string.IsNullOrWhiteSpace(textBoxValue))
@@ -309,6 +288,27 @@ else
     private void OnEditCategoryTextChanged(object? value)
     {
         textBoxValue = value?.ToString();
+    }
+
+    private async Task OnSaveButtonClicked(
+        ChangeMode changeMode,
+        string? dropDownValue,
+        string? textBoxValue)
+    {
+        switch (changeMode)
+        {
+            case ChangeMode.Create:
+                await OnCreateCategory(textBoxValue);
+                break;
+            case ChangeMode.Edit:
+                await OnEditCategory(dropDownValue, textBoxValue);
+                break;
+            case ChangeMode.Delete:
+                await OnDeleteCategory(dropDownValue);
+                break;
+            default:
+                throw new KeyworderException($"No action configured for ChangeMode.{changeMode}");
+        }
     }
 
     private void OnTabItemClicked(ChangeMode changeMode)
