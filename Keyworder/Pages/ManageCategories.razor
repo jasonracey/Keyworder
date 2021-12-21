@@ -15,97 +15,135 @@
 }
 else
 {
-    <div class="row">
-        <RadzenFieldset Text="Manage Categories">
-            <RadzenTabs SelectedIndex="0">
-                <Tabs>
-                    <RadzenTabsItem 
-                        @onclick=@(() => OnTabItemClicked(ChangeMode.Create))
-                        Text="Create Category">
-                        <div class="row">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel 
-                                    Text="Name" />
+    <RadzenTemplateForm 
+        Data=@model 
+        Submit=@(() => OnSaveButtonClicked(model, currentChangeMode))
+        TItem="ManageCategoriesModel">
+        <div class="row">
+            <RadzenFieldset 
+                Text="Manage Categories">
+                <RadzenTabs 
+                    SelectedIndex="0">
+                    <Tabs>
+                        <RadzenTabsItem 
+                            @onclick=@(() => OnTabItemClicked(ChangeMode.Create))
+                            Text="Create Category">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel
+                                        Text="Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox
+                                        @bind-Value=@model.TextBoxValue 
+                                        MaxLength=50 
+                                        Name="CreateCategoryTextBox"
+                                        @oninput=@(args => OnCategoryTextChanged(args?.Value)) 
+                                        Placeholder="Category..." />
+                                    <RadzenRequiredValidator
+                                        Component="CreateCategoryTextBox"
+                                        Style="display:block"
+                                        Text="Value is required" />
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                <RadzenTextBox 
-                                    @bind-Value=@textBoxValue 
-                                    MaxLength=50 
-                                    @oninput=@(args => OnCreateCategoryTextChanged(args?.Value)) 
-                                    Placeholder="Category..." />
+                        </RadzenTabsItem>
+                        <RadzenTabsItem 
+                            @onclick=@(() => OnTabItemClicked(ChangeMode.Edit))
+                            Text="Edit Category">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel 
+                                        Text="Select" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenDropDown 
+                                        @bind-Value=@model.DropDownValue
+                                        Change=@(value => OnEditCategoryDropDownValueChanged(value)) 
+                                        Data=@GetCategories() 
+                                        Name="EditCategoryDropDown"
+                                        Placeholder="Select..." 
+                                        TValue="string" />
+                                    <RadzenRequiredValidator
+                                        Component="EditCategoryDropDown"
+                                        Style="display:block"
+                                        Text="Value is required" />
+                                </div>
                             </div>
-                        </div>
-                    </RadzenTabsItem>
-                    <RadzenTabsItem 
-                        @onclick=@(() => OnTabItemClicked(ChangeMode.Edit))
-                        Text="Edit Category">
-                        <div class="row">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel 
-                                    Text="Select" />
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel 
+                                        Text="Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox 
+                                        @bind-Value=@model.TextBoxValue 
+                                        MaxLength=50 
+                                        Name="EditCategoryTextBox"
+                                        @oninput=@(args => OnCategoryTextChanged(args?.Value)) 
+                                        Placeholder="Category..." />
+                                    <RadzenRequiredValidator
+                                        Component="EditCategoryTextBox"
+                                        Style="display:block"
+                                        Text="Value is required" />
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                <RadzenDropDown 
-                                    @bind-Value=@dropDownValue
-                                    Change=@(value => OnEditCategoryDropDownValueChanged(value)) 
-                                    Data=@GetCategories() 
-                                    Placeholder="Select..." 
-                                    TValue="string" />
+                        </RadzenTabsItem>
+                        <RadzenTabsItem 
+                            @onclick=@(() => OnTabItemClicked(ChangeMode.Delete))
+                            Text="Delete Category">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel 
+                                        Text="Select" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenDropDown 
+                                        @bind-Value=@model.DropDownValue
+                                        Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
+                                        Data=@GetCategories() 
+                                        Name="DeleteCategoryDropDown"
+                                        Placeholder="Select..." 
+                                        TValue="string" />
+                                    <RadzenRequiredValidator
+                                        Component="DeleteCategoryDropDown"
+                                        Style="display:block"
+                                        Text="Value is required" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel 
-                                    Text="Name" />
-                            </div>
-                            <div class="col-md-8">
-                                <RadzenTextBox 
-                                    @bind-Value=@textBoxValue 
-                                    MaxLength=50 
-                                    @oninput=@(args => OnCreateCategoryTextChanged(args?.Value)) 
-                                    Placeholder="Category..." />
-                            </div>
-                        </div>
-                    </RadzenTabsItem>
-                    <RadzenTabsItem 
-                        @onclick=@(() => OnTabItemClicked(ChangeMode.Delete))
-                        Text="Delete Category">
-                        <div class="row">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel 
-                                    Text="Select" />
-                            </div>
-                            <div class="col-md-8">
-                                <RadzenDropDown 
-                                    @bind-Value=@dropDownValue
-                                    Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
-                                    Data=@GetCategories() 
-                                    Placeholder="Select..." 
-                                    TValue="string" />
-                            </div>
-                        </div>
-                    </RadzenTabsItem>
-                </Tabs>
-            </RadzenTabs>
-            <RadzenButton 
-                BusyText=@GetSaveBusyText(currentChangeMode)
-                ButtonStyle=@GetSaveButtonStyle(currentChangeMode)
-                Click=@(() => OnSaveButtonClicked(currentChangeMode, dropDownValue, textBoxValue))
-                Disabled=@IsSaveButtonDisabled(currentChangeMode, dropDownValue, textBoxValue)
-                Icon=@GetSaveButtonIcon(currentChangeMode)
-                IsBusy=@IsSaveButtonBusy(currentFormState)
-                Text=@GetSaveButtonText(currentChangeMode) />
-            <RadzenNotification />
-        </RadzenFieldset>
-    </div>
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+                <RadzenButton 
+                    BusyText=@GetSaveBusyText(currentChangeMode)
+                    ButtonStyle=@GetSaveButtonStyle(currentChangeMode)
+                    ButtonType="ButtonType.Submit"
+                    Icon=@GetSaveButtonIcon(currentChangeMode)
+                    IsBusy=@IsSaveButtonBusy(currentFormState)
+                    Text=@GetSaveButtonText(currentChangeMode) />
+                <RadzenNotification />
+            </RadzenFieldset>
+        </div>
+    </RadzenTemplateForm>
 }
 
 @code {
     private List<Keyword> allKeywords = new List<Keyword>();
     private ChangeMode currentChangeMode = ChangeMode.Create;
     private FormState currentFormState = FormState.Idle;
-    private string? dropDownValue = null;
-    private string? textBoxValue = null;   
+    private ManageCategoriesModel model = new ManageCategoriesModel();
+
+    private class ManageCategoriesModel
+    {
+        private string? textBoxValue;
+
+        public string? DropDownValue { get; set; }
+        public string? TextBoxValue
+        {
+            get => textBoxValue;
+            // prevent white space from bypassing required validator
+            set => textBoxValue = value?.Trim();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -169,48 +207,14 @@ else
         };
     }
 
-    private bool IsSaveButtonDisabledForCreate(string? textBoxValue)
-    {
-        return string.IsNullOrWhiteSpace(textBoxValue);
-    }
-
-    private bool IsSaveButtonDisabledForDelete(string? dropDownValue)
-    {
-        return string.IsNullOrWhiteSpace(dropDownValue);
-    }
-
-    private bool IsSaveButtonDisabledForEdit(string? dropDownValue, string? textBoxValue)
-    {
-        return 
-            string.IsNullOrWhiteSpace(textBoxValue) ||
-            (
-                dropDownValue != null && 
-                dropDownValue.Equals(textBoxValue, StringComparison.Ordinal)
-            );
-    }
-
     private bool IsSaveButtonBusy(FormState formState)
     {
         return formState == FormState.Busy;
     }
 
-    private bool IsSaveButtonDisabled(
-        ChangeMode changeMode,
-        string? dropDownValue,
-        string? textBoxValue)
+    private void OnCategoryTextChanged(object? value)
     {
-        return changeMode switch
-        {
-            ChangeMode.Create => IsSaveButtonDisabledForCreate(textBoxValue),
-            ChangeMode.Edit => IsSaveButtonDisabledForEdit(dropDownValue, textBoxValue),
-            ChangeMode.Delete => IsSaveButtonDisabledForDelete(dropDownValue),
-            _ => throw new KeyworderException($"No value configured for ChangeMode.{changeMode}")
-        };
-    }
-
-    private bool IsSpecifyCategoryToEditDisabled(string dropDownValue)
-    {
-        return string.IsNullOrWhiteSpace(dropDownValue);
+        model.TextBoxValue = value?.ToString();
     }
 
     private async Task OnCreateCategory(string? textBoxValue)
@@ -228,11 +232,6 @@ else
         await ResetForm();
 
         SetFormState(FormState.Idle);
-    }
-
-    private void OnCreateCategoryTextChanged(object? value)
-    {
-        textBoxValue = value?.ToString();
     }
 
     private async Task OnDeleteCategory(string? dropDownValue)
@@ -254,7 +253,7 @@ else
 
     private void OnDeleteCategoryDropDownValueChanged(object? value)
     {
-        dropDownValue = value?.ToString();
+        model.DropDownValue = value?.ToString();
     }
 
     private async Task OnEditCategory(
@@ -281,33 +280,32 @@ else
 
     private void OnEditCategoryDropDownValueChanged(object? value)
     {
-        dropDownValue = value?.ToString();
-        textBoxValue = dropDownValue;
+        model.DropDownValue = value?.ToString();
+        model.TextBoxValue = model.DropDownValue;
     }
 
     private void OnEditCategoryTextChanged(object? value)
     {
-        textBoxValue = value?.ToString();
+        model.TextBoxValue = value?.ToString();
     }
 
     private async Task OnSaveButtonClicked(
-        ChangeMode changeMode,
-        string? dropDownValue,
-        string? textBoxValue)
+        ManageCategoriesModel model,
+        ChangeMode changeMode)
     {
-        switch (changeMode)
+        switch (currentChangeMode)
         {
             case ChangeMode.Create:
-                await OnCreateCategory(textBoxValue);
+                await OnCreateCategory(model.TextBoxValue);
                 break;
             case ChangeMode.Edit:
-                await OnEditCategory(dropDownValue, textBoxValue);
+                await OnEditCategory(model.DropDownValue, model.TextBoxValue);
                 break;
             case ChangeMode.Delete:
-                await OnDeleteCategory(dropDownValue);
+                await OnDeleteCategory(model.DropDownValue);
                 break;
             default:
-                throw new KeyworderException($"No action configured for ChangeMode.{changeMode}");
+                throw new KeyworderException($"No action configured for ChangeMode.{currentChangeMode}");
         }
     }
 
@@ -325,8 +323,9 @@ else
 
     private void ResetUserInput()
     {
-        dropDownValue = null;
-        textBoxValue = null;
+        // reinitializing the model would send the user back to the default tab
+        model.DropDownValue = null;
+        model.TextBoxValue = null;
     }
 
     private void SetFormState(FormState formState)
