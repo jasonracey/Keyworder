@@ -95,7 +95,7 @@ else
     private string ToFlickrTagsString(IEnumerable<Keyword> keywords)
     {
         var values = keywords
-            .Where(keyword => keyword.Children == null)
+            .Where(keyword => !keyword.IsCategory)
             .Select(keyword => keyword.Name);
 
         return TagService.ToFlickrTagsString(values);
