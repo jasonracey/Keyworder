@@ -43,8 +43,6 @@ else
                 ButtonStyle="ButtonStyle.Info" 
                 Click=@ClearSelectedKeywords 
                 Text="Clear" />
-        </div>
-        <div class="col">
             <RadzenButton 
                 ButtonStyle="ButtonStyle.Info" 
                 Click="@(() => CopyToClipboard(ToFlickrTagsString(selectedKeywords)))" 
