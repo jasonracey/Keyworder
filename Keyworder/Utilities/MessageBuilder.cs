@@ -27,11 +27,11 @@ namespace Keyworder.Utilities
             Summary = "Success"
         };
 
-        private static readonly NotificationMessage baseDuplicateMessage = new NotificationMessage
+        private static readonly NotificationMessage baseWarningMessage = new NotificationMessage
         {
             Duration = 2000,
             Severity = NotificationSeverity.Warning,
-            Summary = "Duplicate"
+            Summary = "Warning"
         };
 
         private static readonly NotificationMessage baseErrorMessage = new NotificationMessage
@@ -45,25 +45,25 @@ namespace Keyworder.Utilities
         public static NotificationMessage BuildCreatedMessage(EntityType entityType)
         {
             return baseSuccessMessage
-                .WithDetail($"{entityType} created successfully");
+                .WithDetail($"{entityType} created");
         }
 
         public static NotificationMessage BuildDeletedMessage(EntityType entityType)
         {
             return baseSuccessMessage
-                .WithDetail($"{entityType} deleted successfully");
+                .WithDetail($"{entityType} deleted");
         }
 
         public static NotificationMessage BuildDuplicateMessage(EntityType entityType)
         {
-            return baseDuplicateMessage
+            return baseWarningMessage
                 .WithDetail($"{entityType} already exists");
         }
 
         public static NotificationMessage BuildEditedMessage(EntityType entityType)
         {
             return baseSuccessMessage
-                .WithDetail($"{entityType} edited successfully");
+                .WithDetail($"{entityType} edited");
         }
 
         public static NotificationMessage BuildErrorMessage()
