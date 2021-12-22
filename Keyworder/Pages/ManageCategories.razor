@@ -236,7 +236,8 @@ else
 
         NotificationService.Notify(GetNotificationMessage(resultType));
 
-        await ResetForm();
+        if (resultType == ResultType.Created)
+            await ResetForm();
 
         SetFormState(FormState.Idle);
     }
@@ -253,7 +254,8 @@ else
 
         NotificationService.Notify(GetNotificationMessage(resultType));
 
-        await ResetForm();
+        if (resultType == ResultType.Deleted)
+            await ResetForm();
 
         SetFormState(FormState.Idle);
     }
@@ -275,7 +277,8 @@ else
 
         NotificationService.Notify(GetNotificationMessage(resultType));
 
-        await ResetForm();
+        if (resultType == ResultType.Edited)
+            await ResetForm();
 
         SetFormState(FormState.Idle);
     }
