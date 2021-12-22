@@ -7,6 +7,7 @@
 @using Keyworder.Utilities
 @inject ClipboardService ClipboardService
 @inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <h2>Select Keywords</h2>
 
@@ -41,20 +42,22 @@ else
             <RadzenButton 
                 ButtonStyle="ButtonStyle.Info" 
                 Click=@ClearSelectedKeywords 
-                Disabled=@IsSelectedKeywordsEmpty() 
                 Text="Clear" />
         </div>
         <div class="col">
             <RadzenButton 
                 ButtonStyle="ButtonStyle.Info" 
                 Click="@(() => CopyToClipboard(ToFlickrTagsString(selectedKeywords)))" 
-                Disabled=@IsSelectedKeywordsEmpty() 
                 Text="Copy" />
+            <RadzenNotification />
         </div>
     </div>
 }
 
 @code {
+    private static readonly NotificationMessage copySuccessMessage = MessageBuilder.BuildCopySuccessMessage();
+    private static readonly NotificationMessage copyWarningMessage = MessageBuilder.BuildCopyWarningMessage();
+
     private List<Keyword> allKeywords = new List<Keyword>();
     private List<Keyword> selectedKeywords = new List<Keyword>();
 
@@ -70,7 +73,15 @@ else
 
     private async Task CopyToClipboard(string input)
     {
-        await ClipboardService.WriteTextAsync(input);
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            NotificationService.Notify(copyWarningMessage);
+        }
+        else
+        {
+            await ClipboardService.WriteTextAsync(input);
+            NotificationService.Notify(copySuccessMessage);
+        }
     }
 
     private async Task<List<Keyword>> GetAllKeywords()
@@ -83,13 +94,6 @@ else
     {
         return keyword.IsCategory && 
             !keyword.Children.Any();
-    }
-
-    private bool IsSelectedKeywordsEmpty()
-    {
-        return selectedKeywords
-            .Where(keyword => !keyword.IsCategory)
-            .Count() == 0;
     }
 
     private string ToFlickrTagsString(IEnumerable<Keyword> keywords)

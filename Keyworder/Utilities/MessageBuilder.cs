@@ -42,6 +42,18 @@ namespace Keyworder.Utilities
             Summary = "Error"
         };
 
+        public static NotificationMessage BuildCopySuccessMessage()
+        {
+            return baseSuccessMessage
+                .WithDetail($"Keywords copied to clipboard");
+        }
+
+        public static NotificationMessage BuildCopyWarningMessage()
+        {
+            return baseWarningMessage
+                .WithDetail($"Please select at least one keyword to copy to clipboard");
+        }
+
         public static NotificationMessage BuildCreatedMessage(EntityType entityType)
         {
             return baseSuccessMessage
