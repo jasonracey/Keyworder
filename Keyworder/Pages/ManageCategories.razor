@@ -58,7 +58,7 @@ else
                                 <div class="col-md-8">
                                     <RadzenDropDown 
                                         @bind-Value=@model.DropDownValue
-                                        Change=@(value => OnEditCategoryDropDownValueChanged(value)) 
+                                        Change=@(value => OnCategoryDropDownValueChanged(value)) 
                                         Data=@GetCategories() 
                                         Name="EditCategoryDropDown"
                                         Placeholder="Select..." 
@@ -99,7 +99,7 @@ else
                                 <div class="col-md-8">
                                     <RadzenDropDown 
                                         @bind-Value=@model.DropDownValue
-                                        Change=@(value => OnDeleteCategoryDropDownValueChanged(value)) 
+                                        Change=@(value => OnCategoryDropDownValueChanged(value)) 
                                         Data=@GetCategories() 
                                         Name="DeleteCategoryDropDown"
                                         Placeholder="Select..." 
@@ -212,6 +212,12 @@ else
         return formState == FormState.Busy;
     }
 
+    private void OnCategoryDropDownValueChanged(object? value)
+    {
+        model.DropDownValue = value?.ToString();
+        model.TextBoxValue = model.DropDownValue;
+    }
+
     private void OnCategoryTextChanged(object? value)
     {
         model.TextBoxValue = value?.ToString();
@@ -251,11 +257,6 @@ else
         SetFormState(FormState.Idle);
     }
 
-    private void OnDeleteCategoryDropDownValueChanged(object? value)
-    {
-        model.DropDownValue = value?.ToString();
-    }
-
     private async Task OnEditCategory(
         string? dropDownValue, 
         string? textBoxValue)
@@ -276,17 +277,6 @@ else
         await ResetForm();
 
         SetFormState(FormState.Idle);
-    }
-
-    private void OnEditCategoryDropDownValueChanged(object? value)
-    {
-        model.DropDownValue = value?.ToString();
-        model.TextBoxValue = model.DropDownValue;
-    }
-
-    private void OnEditCategoryTextChanged(object? value)
-    {
-        model.TextBoxValue = value?.ToString();
     }
 
     private async Task OnSaveButtonClicked(
