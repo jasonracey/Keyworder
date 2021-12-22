@@ -231,8 +231,11 @@ namespace Keyworder.Data
 
                 var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(oldCategoryNameClean, StringComparison.Ordinal));
 
-                if (existingCategory.Children.Any(keyword => keyword.Name.Equals(newCategoryNameClean, StringComparison.Ordinal)))
+                if (oldCategoryNameClean.Equals(newCategoryNameClean, StringComparison.Ordinal))
+                {
+                    Log.Warning("EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewKeywordNameClean}", nameof(ResultType.Duplicate), oldCategoryNameClean, newCategoryNameClean);
                     return ResultType.Duplicate;
+                }
 
                 var updatedCategory = new Keyword
                 {
