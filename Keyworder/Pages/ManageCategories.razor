@@ -137,10 +137,11 @@ else
         private string? textBoxValue;
 
         public string? DropDownValue { get; set; }
+
         public string? TextBoxValue
         {
             get => textBoxValue;
-            // prevent white space from bypassing required validator
+            // prevent white space from bypassing the required validator
             set => textBoxValue = value?.Trim();
         }
     }
