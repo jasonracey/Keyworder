@@ -1,4 +1,8 @@
-﻿::deep .tree-item svg {
+﻿form .row {
+    margin-bottom: 16px;
+}
+
+::deep .tree-item svg {
     margin-bottom: 5px;
 }
 
