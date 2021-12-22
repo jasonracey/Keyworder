@@ -7,6 +7,8 @@
 @inject KeywordService KeywordService
 @inject NotificationService NotificationService
 
+<h2>Manage Keywords</h2>
+
 @if (allKeywords == null)
 {
     <div class="spinner-border" role="status">
@@ -20,166 +22,163 @@ else
         Submit=@(() => OnSaveButtonClicked(model, currentChangeMode))
         TItem="ManageKeywordsModel">
         <div class="row">
-            <RadzenFieldset 
-                Text="Manage Keywords">
-                <RadzenTabs 
-                    SelectedIndex="0">
-                    <Tabs>
-                        <RadzenTabsItem 
-                            @onclick=@(() => OnTabItemClicked(ChangeMode.Create))
-                            Text="Create Keyword">
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Name" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenDropDown 
-                                        @bind-Value=@model.CategoryDropDownValue 
-                                        Change=@(value => OnCategoryDropDownValueChanged(value))
-                                        Data=@GetCategories()
-                                        Name="CreateKeywordCategoryDropDown"
-                                        Placeholder="Select..." 
-                                        TValue="string" />
-                                    <RadzenRequiredValidator
-                                        Component="CreateKeywordCategoryDropDown"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+            <RadzenTabs 
+                SelectedIndex="0">
+                <Tabs>
+                    <RadzenTabsItem 
+                        @onclick=@(() => OnTabItemClicked(ChangeMode.Create))
+                        Text="Create Keyword">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Name" />
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Name" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenTextBox 
-                                        @bind-Value=@model.TextBoxValue
-                                        MaxLength=50 
-                                        Name="CreateKeywordTextBox"
-                                        @oninput=@(args => OnKeywordTextChanged(args?.Value)) 
-                                        Placeholder="Keyword..." />
-                                    <RadzenRequiredValidator
-                                        Component="CreateKeywordTextBox"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@model.CategoryDropDownValue 
+                                    Change=@(value => OnCategoryDropDownValueChanged(value))
+                                    Data=@GetCategories()
+                                    Name="CreateKeywordCategoryDropDown"
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                                <RadzenRequiredValidator
+                                    Component="CreateKeywordCategoryDropDown"
+                                    Style="display:block"
+                                    Text="Value is required" />
                             </div>
-                        </RadzenTabsItem>
-                        <RadzenTabsItem 
-                            @onclick=@(() => OnTabItemClicked(ChangeMode.Edit))
-                            Text="Edit Keyword">
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Select" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenDropDown 
-                                        @bind-Value=@model.CategoryDropDownValue
-                                        Change=@(value => OnCategoryDropDownValueChanged(value))
-                                        Data=@GetCategories()
-                                        Name="EditKeywordCategoryDropDown"
-                                        Placeholder="Select..." 
-                                        TValue="string" />
-                                    <RadzenRequiredValidator
-                                        Component="EditKeywordCategoryDropDown"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Name" />
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Select" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenDropDown 
-                                        @bind-Value=@model.KeywordDropDownValue
-                                        Change=@(value => OnKeywordDropDownValueChanged(value))
-                                        Data=@keywordsByCategory
-                                        Name="EditKeywordKeywordDropDown"
-                                        Placeholder="Select..." 
-                                        TValue="string" />
-                                    <RadzenRequiredValidator
-                                        Component="EditKeywordKeywordDropDown"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+                            <div class="col-md-8">
+                                <RadzenTextBox 
+                                    @bind-Value=@model.TextBoxValue
+                                    MaxLength=50 
+                                    Name="CreateKeywordTextBox"
+                                    @oninput=@(args => OnKeywordTextChanged(args?.Value)) 
+                                    Placeholder="Keyword..." />
+                                <RadzenRequiredValidator
+                                    Component="CreateKeywordTextBox"
+                                    Style="display:block"
+                                    Text="Value is required" />
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Name" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenTextBox 
-                                        @bind-Value=@model.TextBoxValue 
-                                        MaxLength=50
-                                        Name="EditKeywordTextBox"
-                                        @oninput=@(args => OnKeywordTextChanged(args?.Value))
-                                        Placeholder="Keyword..." />
-                                    <RadzenRequiredValidator
-                                        Component="EditKeywordTextBox"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+                        </div>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem 
+                        @onclick=@(() => OnTabItemClicked(ChangeMode.Edit))
+                        Text="Edit Keyword">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Select" />
                             </div>
-                        </RadzenTabsItem>
-                        <RadzenTabsItem 
-                            @onclick=@(() => OnTabItemClicked(ChangeMode.Delete))
-                            Text="Delete Keyword">
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Select" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenDropDown 
-                                        @bind-Value=@model.CategoryDropDownValue 
-                                        Change=@(value => OnCategoryDropDownValueChanged(value)) 
-                                        Data=@GetCategories() 
-                                        Name="DeleteKeywordCategoryDropDown"
-                                        Placeholder="Select..." 
-                                        TValue="string" />
-                                    <RadzenRequiredValidator
-                                        Component="DeleteKeywordCategoryDropDown"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@model.CategoryDropDownValue
+                                    Change=@(value => OnCategoryDropDownValueChanged(value))
+                                    Data=@GetCategories()
+                                    Name="EditKeywordCategoryDropDown"
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                                <RadzenRequiredValidator
+                                    Component="EditKeywordCategoryDropDown"
+                                    Style="display:block"
+                                    Text="Value is required" />
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 align-items-center d-flex">
-                                    <RadzenLabel 
-                                        Text="Select" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenDropDown 
-                                        @bind-Value=@model.KeywordDropDownValue 
-                                        Change=@(value => OnKeywordDropDownValueChanged(value)) 
-                                        Data=@GetKeywordsByCategory(model.CategoryDropDownValue)
-                                        Name="DeleteKeywordKeywordDropDown"
-                                        Placeholder="Select..." 
-                                        TValue="string" />
-                                    <RadzenRequiredValidator
-                                        Component="DeleteKeywordKeywordDropDown"
-                                        Style="display:block"
-                                        Text="Value is required" />
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Select" />
                             </div>
-                        </RadzenTabsItem>
-                    </Tabs>
-                </RadzenTabs>
-                <RadzenButton 
-                    BusyText=@GetSaveBusyText(currentChangeMode)
-                    ButtonStyle=@GetSaveButtonStyle(currentChangeMode)
-                    ButtonType="ButtonType.Submit"
-                    Icon=@GetSaveButtonIcon(currentChangeMode)
-                    IsBusy=@IsSaveButtonBusy(currentFormState)
-                    Text=@GetSaveButtonText(currentChangeMode) />
-                <RadzenNotification />
-            </RadzenFieldset>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@model.KeywordDropDownValue
+                                    Change=@(value => OnKeywordDropDownValueChanged(value))
+                                    Data=@keywordsByCategory
+                                    Name="EditKeywordKeywordDropDown"
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                                <RadzenRequiredValidator
+                                    Component="EditKeywordKeywordDropDown"
+                                    Style="display:block"
+                                    Text="Value is required" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Name" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenTextBox 
+                                    @bind-Value=@model.TextBoxValue 
+                                    MaxLength=50
+                                    Name="EditKeywordTextBox"
+                                    @oninput=@(args => OnKeywordTextChanged(args?.Value))
+                                    Placeholder="Keyword..." />
+                                <RadzenRequiredValidator
+                                    Component="EditKeywordTextBox"
+                                    Style="display:block"
+                                    Text="Value is required" />
+                            </div>
+                        </div>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem 
+                        @onclick=@(() => OnTabItemClicked(ChangeMode.Delete))
+                        Text="Delete Keyword">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Select" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@model.CategoryDropDownValue 
+                                    Change=@(value => OnCategoryDropDownValueChanged(value)) 
+                                    Data=@GetCategories() 
+                                    Name="DeleteKeywordCategoryDropDown"
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                                <RadzenRequiredValidator
+                                    Component="DeleteKeywordCategoryDropDown"
+                                    Style="display:block"
+                                    Text="Value is required" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel 
+                                    Text="Select" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenDropDown 
+                                    @bind-Value=@model.KeywordDropDownValue 
+                                    Change=@(value => OnKeywordDropDownValueChanged(value)) 
+                                    Data=@GetKeywordsByCategory(model.CategoryDropDownValue)
+                                    Name="DeleteKeywordKeywordDropDown"
+                                    Placeholder="Select..." 
+                                    TValue="string" />
+                                <RadzenRequiredValidator
+                                    Component="DeleteKeywordKeywordDropDown"
+                                    Style="display:block"
+                                    Text="Value is required" />
+                            </div>
+                        </div>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
         </div>
+        <RadzenButton 
+            BusyText=@GetSaveBusyText(currentChangeMode)
+            ButtonStyle=@GetSaveButtonStyle(currentChangeMode)
+            ButtonType="ButtonType.Submit"
+            Icon=@GetSaveButtonIcon(currentChangeMode)
+            IsBusy=@IsSaveButtonBusy(currentFormState)
+            Text=@GetSaveButtonText(currentChangeMode) />
+        <RadzenNotification />
     </RadzenTemplateForm>
 }
 
