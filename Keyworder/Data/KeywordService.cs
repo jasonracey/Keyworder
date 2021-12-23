@@ -23,7 +23,7 @@ namespace Keyworder.Data
 
         public async Task<ResultType> CreateCategoryAsync(string? categoryName)
         {
-            if (categoryName == null)
+            if (string.IsNullOrWhiteSpace(categoryName))
                 throw new ArgumentNullException(nameof(categoryName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
@@ -70,9 +70,9 @@ namespace Keyworder.Data
 
         public async Task<ResultType> CreateKeywordAsync(string? categoryName, string? keywordName)
         {
-            if (categoryName == null)
+            if (string.IsNullOrWhiteSpace(categoryName))
                 throw new ArgumentNullException(nameof(categoryName));
-            if (keywordName == null)
+            if (string.IsNullOrWhiteSpace(keywordName))
                 throw new ArgumentNullException(nameof(keywordName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
@@ -127,7 +127,7 @@ namespace Keyworder.Data
 
         public async Task<ResultType> DeleteCategoryAsync(string? categoryName)
         {
-            if (categoryName == null)
+            if (string.IsNullOrWhiteSpace(categoryName))
                 throw new ArgumentNullException(nameof(categoryName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
@@ -161,9 +161,9 @@ namespace Keyworder.Data
 
         public async Task<ResultType> DeleteKeywordAsync(string? categoryName, string? keywordName)
         {
-            if (categoryName == null)
+            if (string.IsNullOrWhiteSpace(categoryName))
                 throw new ArgumentNullException(nameof(categoryName));
-            if (keywordName == null)
+            if (string.IsNullOrWhiteSpace(keywordName))
                 throw new ArgumentNullException(nameof(keywordName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
@@ -178,7 +178,7 @@ namespace Keyworder.Data
                 categoryNameClean = HttpUtility.HtmlEncode(categoryName.Trim());
                 keywordNameClean = HttpUtility.HtmlEncode(keywordName.Trim());
 
-                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(categoryName, StringComparison.Ordinal));
+                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(categoryNameClean, StringComparison.Ordinal));
 
                 var updatedCategory = new Keyword
                 {
@@ -212,9 +212,9 @@ namespace Keyworder.Data
 
         public async Task<ResultType> EditCategoryAsync(string? oldCategoryName, string? newCategoryName)
         {
-            if (oldCategoryName == null)
+            if (string.IsNullOrWhiteSpace(oldCategoryName))
                 throw new ArgumentNullException(nameof(oldCategoryName));
-            if (newCategoryName == null)
+            if (string.IsNullOrWhiteSpace(newCategoryName))
                 throw new ArgumentNullException(nameof(newCategoryName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
@@ -267,11 +267,11 @@ namespace Keyworder.Data
 
         public async Task<ResultType> EditKeywordAsync(string? categoryName, string? oldKeywordName, string? newKeywordName)
         {
-            if (categoryName == null)
+            if (string.IsNullOrWhiteSpace(categoryName))
                 throw new ArgumentNullException(nameof(categoryName));
-            if (oldKeywordName == null)
+            if (string.IsNullOrWhiteSpace(oldKeywordName))
                 throw new ArgumentNullException(nameof(oldKeywordName));
-            if (newKeywordName == null)
+            if (string.IsNullOrWhiteSpace(newKeywordName))
                 throw new ArgumentNullException(nameof(newKeywordName));
 
             var existingKeywords = await GetKeywordsAsync().ConfigureAwait(false);
