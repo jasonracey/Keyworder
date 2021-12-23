@@ -1,4 +1,5 @@
-﻿using Keyworder.Utilities;
+﻿using FluentAssertions;
+using Keyworder.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,12 @@ namespace Keyworder.UnitTests.Utilities
         [TestMethod]
         public void WhenCollectionIsNull_ThrowsExpectedException()
         {
+            // arrange
+            Action act = () => TagService.ToFlickrTagsString(null!);
+
             // act/assert
-            Assert.ThrowsException<ArgumentNullException>(() => TagService.ToFlickrTagsString(null!));
+            act.Should().Throw<ArgumentNullException>()
+                .WithParameterName("values");
         }
 
         [TestMethod]
@@ -25,7 +30,7 @@ namespace Keyworder.UnitTests.Utilities
             var result = TagService.ToFlickrTagsString(values);
 
             // assert
-            Assert.AreEqual(string.Empty, result);
+            result.Should().Be(string.Empty);
         }
 
         [DataTestMethod]
@@ -41,7 +46,7 @@ namespace Keyworder.UnitTests.Utilities
             var result = TagService.ToFlickrTagsString(values);
 
             // assert
-            Assert.AreEqual(string.Empty, result);
+            result.Should().Be(string.Empty);
         }
 
         [TestMethod]
@@ -54,7 +59,7 @@ namespace Keyworder.UnitTests.Utilities
             var result = TagService.ToFlickrTagsString(values);
 
             // assert
-            Assert.AreEqual("\"a\",\"b\",\"B\",\"c\"", result);
+            result.Should().Be("\"a\",\"b\",\"B\",\"c\"");
         }
     }
 }
