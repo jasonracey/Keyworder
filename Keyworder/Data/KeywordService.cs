@@ -229,13 +229,13 @@ namespace Keyworder.Data
                 oldCategoryNameClean = HttpUtility.HtmlEncode(oldCategoryName.Trim());
                 newCategoryNameClean = HttpUtility.HtmlEncode(newCategoryName.Trim());
 
-                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(oldCategoryNameClean, StringComparison.Ordinal));
-
-                if (oldCategoryNameClean.Equals(newCategoryNameClean, StringComparison.Ordinal))
+                if (existingKeywords.Any(keyword => keyword.Name.Equals(newCategoryNameClean, StringComparison.Ordinal)))
                 {
                     Log.Warning("EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewKeywordNameClean}", nameof(ResultType.Duplicate), oldCategoryNameClean, newCategoryNameClean);
                     return ResultType.Duplicate;
                 }
+
+                var existingCategory = existingKeywords.Single(keyword => keyword.Name.Equals(oldCategoryNameClean, StringComparison.Ordinal));
 
                 var updatedCategory = new Keyword
                 {
