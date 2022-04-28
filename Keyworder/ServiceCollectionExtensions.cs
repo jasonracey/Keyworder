@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddKeywordService(
         this IServiceCollection services, 
-        ConfigurationManager configuration)
+        IConfiguration configuration)
     {
         // Add as singleton so all clients use the same file lock instance
         var keywordsJsonPath = configuration["KeywordsJsonPath"];

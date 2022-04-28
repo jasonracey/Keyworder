@@ -5,96 +5,87 @@
 @using Excubo.Blazor.TreeViews
 @using Keyworder.Data
 @using Keyworder.Utilities
-@inject ClipboardService ClipboardService
-@inject KeywordService KeywordService
-@inject NotificationService NotificationService
+@inject ClipboardService _clipboardService
+@inject KeywordService _keywordService
+@inject NotificationService _notificationService
 
 <h2>Select Keywords</h2>
 
-@if (allKeywords == null)
-{
-    <div class="spinner-border" role="status">
-      <span class="sr-only">Loading...</span>
+<div class="row">
+    <div class="col">
+        <TreeView 
+            AllowSelection="true" 
+            @bind-SelectedItems="_selectedKeywords"
+            GetChildren="(keywords) => keywords.Children" 
+            InitiallyCollapsed="true" 
+            ItemClass="tree-item" 
+            ItemDisabled="keyword => IsKeywordDisabled(keyword)" 
+            Items=@_allKeywords 
+                @key=@_selectedKeywords 
+            SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)">
+            <ItemTemplate>
+                @context.Item.Name
+            </ItemTemplate>
+        </TreeView>
     </div>
-}
-else
-{
-    <div class="row">
-        <div class="col">
-            <TreeView 
-                AllowSelection="true" 
-                @bind-SelectedItems="selectedKeywords"
-                GetChildren="(keywords) => keywords.Children" 
-                InitiallyCollapsed="true" 
-                ItemClass="tree-item" 
-                ItemDisabled="keyword => IsKeywordDisabled(keyword)" 
-                Items=@allKeywords 
-                @key=@selectedKeywords 
-                SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)">
-                <ItemTemplate>
-                    @context.Item.Name
-                </ItemTemplate>
-            </TreeView>
-        </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenButton 
+            ButtonStyle="ButtonStyle.Info" 
+            Click=@ClearSelectedKeywords 
+            Text="Clear" />
+        <RadzenButton 
+            ButtonStyle="ButtonStyle.Info" 
+            Click="@(() => CopyToClipboard(ToFlickrTagsString(_selectedKeywords)))" 
+            Text="Copy" />
+        <RadzenNotification />
     </div>
-    <div class="row">
-        <div class="col">
-            <RadzenButton 
-                ButtonStyle="ButtonStyle.Info" 
-                Click=@ClearSelectedKeywords 
-                Text="Clear" />
-            <RadzenButton 
-                ButtonStyle="ButtonStyle.Info" 
-                Click="@(() => CopyToClipboard(ToFlickrTagsString(selectedKeywords)))" 
-                Text="Copy" />
-            <RadzenNotification />
-        </div>
-    </div>
-}
+</div>
 
 @code {
-    private static readonly NotificationMessage copySuccessMessage = MessageBuilder.BuildCopySuccessMessage();
-    private static readonly NotificationMessage copyWarningMessage = MessageBuilder.BuildCopyWarningMessage();
+    private static readonly NotificationMessage CopySuccessMessage = MessageBuilder.BuildCopySuccessMessage();
+    private static readonly NotificationMessage CopyWarningMessage = MessageBuilder.BuildCopyWarningMessage();
 
-    private List<Keyword> allKeywords = new List<Keyword>();
-    private List<Keyword> selectedKeywords = new List<Keyword>();
+    private List<Keyword> _allKeywords = new();
+    private List<Keyword> _selectedKeywords = new();
 
     protected override async Task OnInitializedAsync()
     {
-        allKeywords = await GetAllKeywords();
+        _allKeywords = await GetAllKeywords();
     }
 
     private void ClearSelectedKeywords()
     {
-        selectedKeywords = new List<Keyword>();
+        _selectedKeywords = new List<Keyword>();
     }
 
     private async Task CopyToClipboard(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            NotificationService.Notify(copyWarningMessage);
+            _notificationService.Notify(CopyWarningMessage);
         }
         else
         {
-            await ClipboardService.WriteTextAsync(input);
-            NotificationService.Notify(copySuccessMessage);
+            await _clipboardService.WriteTextAsync(input);
+            _notificationService.Notify(CopySuccessMessage);
         }
     }
 
     private async Task<List<Keyword>> GetAllKeywords()
     {
-        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
+        var keywordsEnumerable = await _keywordService.GetKeywordsAsync();
         return keywordsEnumerable.ToList();
     }
 
-    private bool IsKeywordDisabled(Keyword keyword)
+    private static bool IsKeywordDisabled(Keyword keyword)
     {
         return keyword.IsCategory && 
             !keyword.Children.Any();
     }
 
-    private string ToFlickrTagsString(IEnumerable<Keyword> keywords)
+    private static string ToFlickrTagsString(IEnumerable<Keyword> keywords)
     {
         var values = keywords
             .Where(keyword => !keyword.IsCategory)

@@ -5,15 +5,15 @@ using Microsoft.JSInterop;
 
 public sealed class ClipboardService
 {
-    private readonly IJSRuntime jsRuntime;
+    private readonly IJSRuntime _jsRuntime;
 
     public ClipboardService(IJSRuntime jsRuntime)
     {
-        this.jsRuntime = jsRuntime;
+        _jsRuntime = jsRuntime;
     }
 
     public ValueTask WriteTextAsync(string text)
     {
-        return jsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        return _jsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
     }
 }

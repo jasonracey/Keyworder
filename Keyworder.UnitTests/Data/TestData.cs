@@ -16,24 +16,24 @@ public static class TestData
 
         var keywords = new List<Keyword>
         {
-            new Keyword
+            new()
             {
                 Name = "Fruit",
                 Children = new List<Keyword>
                 {
-                    new Keyword { Name = "Apple" },
-                    new Keyword { Name = "Banana" },
-                    new Keyword { Name = "Cherry" }
+                    new() { Name = "Apple" },
+                    new() { Name = "Banana" },
+                    new() { Name = "Cherry" }
                 }
             },
-            new Keyword
+            new()
             {
                 Name = "Vegetables",
                 Children = new List<Keyword>
                 {
-                    new Keyword { Name = "Tomato" },
-                    new Keyword { Name = "Pepper" },
-                    new Keyword { Name = "Squash" }
+                    new() { Name = "Tomato" },
+                    new() { Name = "Pepper" },
+                    new() { Name = "Squash" }
                 }
             }
         };

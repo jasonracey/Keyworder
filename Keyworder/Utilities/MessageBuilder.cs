@@ -4,7 +4,70 @@ namespace Keyworder.Utilities
 {
     public static class MessageBuilder
     {
-        public static NotificationMessage WithDetail(
+        private static readonly NotificationMessage BaseSuccessMessage = new()
+        {
+            Duration = 2000,
+            Severity = NotificationSeverity.Success,
+            Summary = "Success"
+        };
+
+        private static readonly NotificationMessage BaseWarningMessage = new()
+        {
+            Duration = 2000,
+            Severity = NotificationSeverity.Warning,
+            Summary = "Warning"
+        };
+
+        private static readonly NotificationMessage BaseErrorMessage = new()
+        {
+            Detail = "Sorry there was an error",
+            Duration = 2000,
+            Severity = NotificationSeverity.Error,
+            Summary = "Error"
+        };
+
+        public static NotificationMessage BuildCopySuccessMessage()
+        {
+            return BaseSuccessMessage
+                .WithDetail($"Keywords copied to clipboard");
+        }
+
+        public static NotificationMessage BuildCopyWarningMessage()
+        {
+            return BaseWarningMessage
+                .WithDetail($"Please select at least one keyword to copy to clipboard");
+        }
+
+        public static NotificationMessage BuildCreatedMessage(EntityType entityType)
+        {
+            return BaseSuccessMessage
+                .WithDetail($"{entityType} created");
+        }
+
+        public static NotificationMessage BuildDeletedMessage(EntityType entityType)
+        {
+            return BaseSuccessMessage
+                .WithDetail($"{entityType} deleted");
+        }
+
+        public static NotificationMessage BuildDuplicateMessage(EntityType entityType)
+        {
+            return BaseWarningMessage
+                .WithDetail($"{entityType} already exists");
+        }
+
+        public static NotificationMessage BuildEditedMessage(EntityType entityType)
+        {
+            return BaseSuccessMessage
+                .WithDetail($"{entityType} edited");
+        }
+
+        public static NotificationMessage BuildErrorMessage()
+        {
+            return BaseErrorMessage;
+        }
+        
+        private static NotificationMessage WithDetail(
             this NotificationMessage message, 
             string? detail)
         {
@@ -18,69 +81,6 @@ namespace Keyworder.Utilities
                 Severity = message.Severity,
                 Summary = message.Summary
             };
-        }
-
-        private static readonly NotificationMessage baseSuccessMessage = new NotificationMessage
-        {
-            Duration = 2000,
-            Severity = NotificationSeverity.Success,
-            Summary = "Success"
-        };
-
-        private static readonly NotificationMessage baseWarningMessage = new NotificationMessage
-        {
-            Duration = 2000,
-            Severity = NotificationSeverity.Warning,
-            Summary = "Warning"
-        };
-
-        private static readonly NotificationMessage baseErrorMessage = new NotificationMessage
-        {
-            Detail = "Sorry there was an error",
-            Duration = 2000,
-            Severity = NotificationSeverity.Error,
-            Summary = "Error"
-        };
-
-        public static NotificationMessage BuildCopySuccessMessage()
-        {
-            return baseSuccessMessage
-                .WithDetail($"Keywords copied to clipboard");
-        }
-
-        public static NotificationMessage BuildCopyWarningMessage()
-        {
-            return baseWarningMessage
-                .WithDetail($"Please select at least one keyword to copy to clipboard");
-        }
-
-        public static NotificationMessage BuildCreatedMessage(EntityType entityType)
-        {
-            return baseSuccessMessage
-                .WithDetail($"{entityType} created");
-        }
-
-        public static NotificationMessage BuildDeletedMessage(EntityType entityType)
-        {
-            return baseSuccessMessage
-                .WithDetail($"{entityType} deleted");
-        }
-
-        public static NotificationMessage BuildDuplicateMessage(EntityType entityType)
-        {
-            return baseWarningMessage
-                .WithDetail($"{entityType} already exists");
-        }
-
-        public static NotificationMessage BuildEditedMessage(EntityType entityType)
-        {
-            return baseSuccessMessage
-                .WithDetail($"{entityType} edited");
-        }
-
-        public static NotificationMessage BuildErrorMessage()
-        {
-            return baseErrorMessage;
         }
     }
 }

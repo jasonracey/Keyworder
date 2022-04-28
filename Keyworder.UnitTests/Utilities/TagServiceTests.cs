@@ -23,11 +23,8 @@ namespace Keyworder.UnitTests.Utilities
         [TestMethod]
         public void WhenCollectionIsEmpty_ReturnsEmptyString()
         {
-            // arrange
-            var values = new List<string>();
-
             // act
-            var result = TagService.ToFlickrTagsString(values);
+            var result = TagService.ToFlickrTagsString(new List<string>());
 
             // assert
             result.Should().Be(string.Empty);

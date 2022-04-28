@@ -1,27 +1,16 @@
-﻿namespace Keyworder.Data
+﻿namespace Keyworder.Data;
+
+public record Keyword
 {
-    public record Keyword
+    private readonly string _name = string.Empty;
+
+    public string Name
     {
-        private readonly string name = null!;
-        private readonly bool isCategory;
-        private readonly List<Keyword> children = null!;
-
-        public string Name
-        {
-            get => this.name;
-            init => this.name = value ?? throw new ArgumentNullException(nameof(value)); 
-        }
-
-        public bool IsCategory
-        {
-            get => this.isCategory;
-            init => this.isCategory = value;
-        }
-
-        public List<Keyword> Children
-        {
-            get => this.children;
-            init => this.children = value ?? new List<Keyword>();
-        }
+        get => _name;
+        init => _name = value ?? throw new ArgumentNullException(nameof(value)); 
     }
+
+    public bool IsCategory { get; init; }
+
+    public List<Keyword> Children { get; init; } = new();
 }

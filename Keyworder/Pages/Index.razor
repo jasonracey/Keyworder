@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject NavigationManager Navigator
+@inject NavigationManager _navigator
 
 <div class="spinner-border" role="status">
     <span class="sr-only">Loading...</span>
@@ -8,6 +8,6 @@
 @code {
     protected override void OnInitialized()
     {
-        Navigator.NavigateTo("/select-keywords", replace: true);
+        _navigator.NavigateTo("/select-keywords", replace: true);
     }
 }
