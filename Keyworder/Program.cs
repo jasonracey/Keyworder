@@ -14,7 +14,7 @@ try
 
     builder.Host.UseSerilog();
 
-    builder.Services.AddKeyworderServices(builder.Configuration);
+    builder.Services.AddKeyworderServices();
     builder.Services.AddRazorPages();
     builder.Services.AddServerSideBlazor();
 

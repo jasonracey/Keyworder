@@ -7,14 +7,9 @@ namespace Keyworder.UnitTests.Data;
 
 public static class TestData
 {
-    public static void Create(string path)
+    public static IEnumerable<Keyword> GetTestData()
     {
-        if (File.Exists(path))
-        {
-            File.Delete(path);
-        }
-
-        var keywords = new List<Keyword>
+        return new List<Keyword>
         {
             new()
             {
@@ -37,9 +32,5 @@ public static class TestData
                 }
             }
         };
-
-        var json = JsonConvert.SerializeObject(keywords);
-
-        File.WriteAllText(path, json);
     }
 }

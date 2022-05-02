@@ -5,9 +5,9 @@
 @using Excubo.Blazor.TreeViews
 @using Keyworder.Data
 @using Keyworder.Utilities
-@inject ClipboardService _clipboardService
-@inject KeywordService _keywordService
-@inject NotificationService _notificationService
+@inject ClipboardService ClipboardService
+@inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <h2>Select Keywords</h2>
 
@@ -64,18 +64,18 @@
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            _notificationService.Notify(CopyWarningMessage);
+            NotificationService.Notify(CopyWarningMessage);
         }
         else
         {
-            await _clipboardService.WriteTextAsync(input);
-            _notificationService.Notify(CopySuccessMessage);
+            await ClipboardService.WriteTextAsync(input);
+            NotificationService.Notify(CopySuccessMessage);
         }
     }
 
     private async Task<List<Keyword>> GetAllKeywords()
     {
-        var keywordsEnumerable = await _keywordService.GetKeywordsAsync();
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
         return keywordsEnumerable.ToList();
     }
 

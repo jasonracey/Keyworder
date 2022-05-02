@@ -4,8 +4,8 @@
 
 @using Keyworder.Data
 @using Keyworder.Utilities
-@inject KeywordService _keywordService
-@inject NotificationService _notificationService
+@inject KeywordService KeywordService
+@inject NotificationService NotificationService
 
 <h2>Manage Categories</h2>
 
@@ -143,7 +143,7 @@
 
     private async Task<List<Keyword>> GetAllKeywords()
     {
-        var keywordsEnumerable = await _keywordService.GetKeywordsAsync();
+        var keywordsEnumerable = await KeywordService.GetKeywordsAsync();
         return keywordsEnumerable.ToList();
     }
 
@@ -220,12 +220,12 @@
 
         SetFormState(FormState.Busy);
 
-        var resultType = await _keywordService.CreateCategoryAsync(
+        var keywordResult = await KeywordService.CreateCategoryAsync(
             textBoxValue);
 
-        _notificationService.Notify(GetNotificationMessage(resultType));
+        NotificationService.Notify(GetNotificationMessage(keywordResult.ResultType));
 
-        if (resultType == ResultType.Created)
+        if (keywordResult.ResultType == ResultType.Created)
             await ResetForm();
 
         SetFormState(FormState.Idle);
@@ -238,12 +238,12 @@
 
         SetFormState(FormState.Busy);
 
-        var resultType = await _keywordService.DeleteCategoryAsync(
+        var keywordResult = await KeywordService.DeleteCategoryAsync(
             dropDownValue);
 
-        _notificationService.Notify(GetNotificationMessage(resultType));
+        NotificationService.Notify(GetNotificationMessage(keywordResult.ResultType));
 
-        if (resultType == ResultType.Deleted)
+        if (keywordResult.ResultType == ResultType.Deleted)
             await ResetForm();
 
         SetFormState(FormState.Idle);
@@ -260,13 +260,13 @@
 
         SetFormState(FormState.Busy);
 
-        var resultType = await _keywordService.EditCategoryAsync(
+        var keywordResult = await KeywordService.EditCategoryAsync(
             dropDownValue, 
             textBoxValue);
 
-        _notificationService.Notify(GetNotificationMessage(resultType));
+        NotificationService.Notify(GetNotificationMessage(keywordResult.ResultType));
 
-        if (resultType == ResultType.Edited)
+        if (keywordResult.ResultType == ResultType.Edited)
             await ResetForm();
 
         SetFormState(FormState.Idle);

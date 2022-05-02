@@ -2,52 +2,49 @@
 using Keyworder.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using Moq;
 
 namespace Keyworder.UnitTests.Data;
 
 [TestClass]
 public class KeywordServiceTests
 {
-    private static string _path = GetNewPath();
-
-    private KeywordService _keywordService = new(GetNewPath());
-
-    private static string GetNewPath() => $"Keywords-{Guid.NewGuid()}.json";
+    private Mock<IKeywordRepository> _mockKeywordRepository = new();
+    
+    private KeywordService _keywordService = new(Mock.Of<IKeywordRepository>());
 
     [TestInitialize]
     public void TestInitialize()
     {
-        _path = GetNewPath();
-        TestData.Create(_path);
-        _keywordService = new KeywordService(_path);
-    }
+        _mockKeywordRepository = new Mock<IKeywordRepository>();
+        
+        _mockKeywordRepository
+            .Setup(mock => mock.ReadAsync())
+            .ReturnsAsync(TestData.GetTestData());
+        
+        _mockKeywordRepository
+            .Setup(mock => mock.WriteAsync(It.IsAny<IEnumerable<Keyword>>()))
+            .ReturnsAsync((IEnumerable<Keyword> keywords) => keywords);
 
-    [TestCleanup]
-    public void TestCleanup()
-    {
-        if (File.Exists(_path))
-            File.Delete(_path);
+        _keywordService = new KeywordService(_mockKeywordRepository.Object);
     }
     
-    [DataTestMethod]
-    [DataRow(null)]
-    [DataRow("")]
-    [DataRow(" ")]
-    public void Constructor_ValidatesArgs(string keywordsJsonPath)
+    [TestMethod]
+    public void Constructor_ValidatesArgs()
     {
         // arrange
         var action = () =>
         {
-            var _ = new KeywordService(keywordsJsonPath);
+            var _ = new KeywordService(null!);
         };
 
         // act/assert
         action.Should().Throw<ArgumentNullException>()
-            .WithParameterName(nameof(keywordsJsonPath));
+            .WithParameterName("keywordRepository");
     }
 
     [DataTestMethod]
@@ -72,12 +69,12 @@ public class KeywordServiceTests
         var categoryName = $" {categoryNameClean}  ";
 
         // act
-        var result = await _keywordService.CreateCategoryAsync(categoryName);
+        var keywordResult = await _keywordService.CreateCategoryAsync(categoryName);
 
         // assert
-        result.Should().Be(ResultType.Created);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertCategoryDoesNotExist(categoryName);
+        keywordResult.ResultType.Should().Be(ResultType.Created);
+        AssertCategoryExists(keywordResult.Keywords, categoryNameClean);
+        AssertCategoryDoesNotExist(keywordResult.Keywords, categoryName);
     }
 
     [TestMethod]
@@ -88,12 +85,12 @@ public class KeywordServiceTests
         var categoryNameClean = HttpUtility.HtmlEncode(categoryName);
 
         // act
-        var result = await _keywordService.CreateCategoryAsync(categoryName);
+        var keywordResult = await _keywordService.CreateCategoryAsync(categoryName);
 
         // assert
-        result.Should().Be(ResultType.Created);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertCategoryDoesNotExist(categoryName);
+        keywordResult.ResultType.Should().Be(ResultType.Created);
+        AssertCategoryExists(keywordResult.Keywords, categoryNameClean);
+        AssertCategoryDoesNotExist(keywordResult.Keywords, categoryName);
     }
 
     [TestMethod]
@@ -102,14 +99,15 @@ public class KeywordServiceTests
         // arrange
         var categoryName = Guid.NewGuid().ToString();
         var firstResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstResult.Keywords);
 
         // act
         var secondResult = await _keywordService.CreateCategoryAsync(categoryName);
 
         // assert
-        firstResult.Should().Be(ResultType.Created);
-        secondResult.Should().Be(ResultType.Duplicate);
-        await AssertCategoryExists(categoryName);
+        firstResult.ResultType.Should().Be(ResultType.Created);
+        secondResult.ResultType.Should().Be(ResultType.Duplicate);
+        AssertCategoryExists(secondResult.Keywords, categoryName);
     }
 
     [DataTestMethod]
@@ -149,17 +147,18 @@ public class KeywordServiceTests
         var keywordNameClean = Guid.NewGuid().ToString();
         var keywordName = $" {keywordNameClean}  ";
         var categoryResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(categoryResult.Keywords);
 
         // act
         var keywordResult = await _keywordService.CreateKeywordAsync(categoryName, keywordName);
 
         // assert
-        categoryResult.Should().Be(ResultType.Created);
-        keywordResult.Should().Be(ResultType.Created);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertKeywordExists(categoryNameClean, keywordNameClean);
-        await AssertKeywordDoesNotExist(categoryNameClean, keywordName);
+        categoryResult.ResultType.Should().Be(ResultType.Created);
+        keywordResult.ResultType.Should().Be(ResultType.Created);
+        AssertCategoryExists(keywordResult.Keywords, categoryNameClean);
+        AssertCategoryDoesNotExist(keywordResult.Keywords, categoryName);
+        AssertKeywordExists(keywordResult.Keywords, categoryNameClean, keywordNameClean);
+        AssertKeywordDoesNotExist(keywordResult.Keywords, categoryNameClean, keywordName);
     }
 
     [TestMethod]
@@ -171,17 +170,18 @@ public class KeywordServiceTests
         var categoryNameClean = HttpUtility.HtmlEncode(categoryName);
         var keywordNameClean = HttpUtility.HtmlEncode(keywordName);
         var categoryResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(categoryResult.Keywords);
 
         // act
         var keywordResult = await _keywordService.CreateKeywordAsync(categoryName, keywordName);
 
         // assert
-        categoryResult.Should().Be(ResultType.Created);
-        keywordResult.Should().Be(ResultType.Created);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertKeywordExists(categoryNameClean, keywordNameClean);
-        await AssertKeywordDoesNotExist(categoryNameClean, keywordName);
+        categoryResult.ResultType.Should().Be(ResultType.Created);
+        keywordResult.ResultType.Should().Be(ResultType.Created);
+        AssertCategoryExists(keywordResult.Keywords, categoryNameClean);
+        AssertCategoryDoesNotExist(keywordResult.Keywords, categoryName);
+        AssertKeywordExists(keywordResult.Keywords, categoryNameClean, keywordNameClean);
+        AssertKeywordDoesNotExist(keywordResult.Keywords, categoryNameClean, keywordName);
     }
 
     [TestMethod]
@@ -192,21 +192,24 @@ public class KeywordServiceTests
         var secondCategory = Guid.NewGuid().ToString();
         var keyword = Guid.NewGuid().ToString();
         var firstCategoryResult = await _keywordService.CreateCategoryAsync(firstCategory);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstCategoryResult.Keywords);
         var secondCategoryResult = await _keywordService.CreateCategoryAsync(secondCategory);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(secondCategoryResult.Keywords);
         var firstKeywordResult = await _keywordService.CreateKeywordAsync(firstCategory, keyword);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstKeywordResult.Keywords);
 
         // act
         var secondKeywordResult = await _keywordService.CreateKeywordAsync(secondCategory, keyword);
 
         // assert
-        firstCategoryResult.Should().Be(ResultType.Created);
-        secondCategoryResult.Should().Be(ResultType.Created);
-        firstKeywordResult.Should().Be(ResultType.Created);
-        secondKeywordResult.Should().Be(ResultType.Created);
-        await AssertCategoryExists(firstCategory);
-        await AssertCategoryExists(secondCategory);
-        await AssertKeywordExists(firstCategory, keyword);
-        await AssertKeywordExists(secondCategory, keyword);
+        firstCategoryResult.ResultType.Should().Be(ResultType.Created);
+        secondCategoryResult.ResultType.Should().Be(ResultType.Created);
+        firstKeywordResult.ResultType.Should().Be(ResultType.Created);
+        secondKeywordResult.ResultType.Should().Be(ResultType.Created);
+        AssertCategoryExists(secondKeywordResult.Keywords, firstCategory);
+        AssertCategoryExists(secondKeywordResult.Keywords, secondCategory);
+        AssertKeywordExists(secondKeywordResult.Keywords, firstCategory, keyword);
+        AssertKeywordExists(secondKeywordResult.Keywords, secondCategory, keyword);
     }
 
     [TestMethod]
@@ -216,17 +219,19 @@ public class KeywordServiceTests
         var category = Guid.NewGuid().ToString();
         var keyword = Guid.NewGuid().ToString();
         var categoryResult = await _keywordService.CreateCategoryAsync(category);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(categoryResult.Keywords);
         var firstKeywordResult = await _keywordService.CreateKeywordAsync(category, keyword);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstKeywordResult.Keywords);
 
         // act
         var secondKeywordResult = await _keywordService.CreateKeywordAsync(category, keyword);
 
         // assert
-        categoryResult.Should().Be(ResultType.Created);
-        firstKeywordResult.Should().Be(ResultType.Created);
-        secondKeywordResult.Should().Be(ResultType.Duplicate);
-        await AssertCategoryExists(category);
-        await AssertKeywordExists(category, keyword);
+        categoryResult.ResultType.Should().Be(ResultType.Created);
+        firstKeywordResult.ResultType.Should().Be(ResultType.Created);
+        secondKeywordResult.ResultType.Should().Be(ResultType.Duplicate);
+        AssertCategoryExists(secondKeywordResult.Keywords, category);
+        AssertKeywordExists(secondKeywordResult.Keywords, category, keyword);
     }
 
     [DataTestMethod]
@@ -255,10 +260,10 @@ public class KeywordServiceTests
         var deleteResult = await _keywordService.DeleteCategoryAsync(categoryName);
 
         // assert
-        createResult.Should().Be(ResultType.Created);
-        deleteResult.Should().Be(ResultType.Deleted);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertCategoryDoesNotExist(categoryNameClean);
+        createResult.ResultType.Should().Be(ResultType.Created);
+        deleteResult.ResultType.Should().Be(ResultType.Deleted);
+        AssertCategoryDoesNotExist(deleteResult.Keywords, categoryName);
+        AssertCategoryDoesNotExist(deleteResult.Keywords, categoryNameClean);
     }
 
     [TestMethod]
@@ -273,10 +278,10 @@ public class KeywordServiceTests
         var deleteResult = await _keywordService.DeleteCategoryAsync(categoryName);
 
         // assert
-        createResult.Should().Be(ResultType.Created);
-        deleteResult.Should().Be(ResultType.Deleted);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertCategoryDoesNotExist(categoryNameClean);
+        createResult.ResultType.Should().Be(ResultType.Created);
+        deleteResult.ResultType.Should().Be(ResultType.Deleted);
+        AssertCategoryDoesNotExist(deleteResult.Keywords, categoryName);
+        AssertCategoryDoesNotExist(deleteResult.Keywords, categoryNameClean);
     }
 
     [DataTestMethod]
@@ -316,19 +321,21 @@ public class KeywordServiceTests
         var keywordNameClean = Guid.NewGuid().ToString();
         var keywordName = $" {keywordNameClean}  ";
         var createCategoryResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createCategoryResult.Keywords);
         var createKeywordResult = await _keywordService.CreateKeywordAsync(categoryName, keywordName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createKeywordResult.Keywords);
 
         // act
         var deleteResult = await _keywordService.DeleteKeywordAsync(categoryName, keywordName);
 
         // assert
-        createCategoryResult.Should().Be(ResultType.Created);
-        createKeywordResult.Should().Be(ResultType.Created);
-        deleteResult.Should().Be(ResultType.Deleted);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertKeywordDoesNotExist(categoryNameClean, keywordName);
-        await AssertKeywordDoesNotExist(categoryNameClean, keywordNameClean);
+        createCategoryResult.ResultType.Should().Be(ResultType.Created);
+        createKeywordResult.ResultType.Should().Be(ResultType.Created);
+        deleteResult.ResultType.Should().Be(ResultType.Deleted);
+        AssertCategoryExists(deleteResult.Keywords, categoryNameClean);
+        AssertCategoryDoesNotExist(deleteResult.Keywords, categoryName);
+        AssertKeywordDoesNotExist(deleteResult.Keywords, categoryNameClean, keywordName);
+        AssertKeywordDoesNotExist(deleteResult.Keywords, categoryNameClean, keywordNameClean);
     }
 
     [TestMethod]
@@ -340,19 +347,21 @@ public class KeywordServiceTests
         var categoryNameClean = HttpUtility.HtmlEncode(categoryName);
         var keywordNameClean = HttpUtility.HtmlEncode(keywordName);
         var createCategoryResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createCategoryResult.Keywords);
         var createKeywordResult = await _keywordService.CreateKeywordAsync(categoryName, keywordName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createKeywordResult.Keywords);
 
         // act
         var deleteResult = await _keywordService.DeleteKeywordAsync(categoryName, keywordName);
 
         // assert
-        createCategoryResult.Should().Be(ResultType.Created);
-        createKeywordResult.Should().Be(ResultType.Created);
-        deleteResult.Should().Be(ResultType.Deleted);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertKeywordDoesNotExist(categoryNameClean, keywordName);
-        await AssertKeywordDoesNotExist(categoryNameClean, keywordNameClean);
+        createCategoryResult.ResultType.Should().Be(ResultType.Created);
+        createKeywordResult.ResultType.Should().Be(ResultType.Created);
+        deleteResult.ResultType.Should().Be(ResultType.Deleted);
+        AssertCategoryExists(deleteResult.Keywords, categoryNameClean);
+        AssertCategoryDoesNotExist(deleteResult.Keywords, categoryName);
+        AssertKeywordDoesNotExist(deleteResult.Keywords, categoryNameClean, keywordName);
+        AssertKeywordDoesNotExist(deleteResult.Keywords, categoryNameClean, keywordNameClean);
     }
 
     [DataTestMethod]
@@ -392,17 +401,18 @@ public class KeywordServiceTests
         var newCategoryNameClean = Guid.NewGuid().ToString();
         var newCategoryName = $" {newCategoryNameClean}  ";
         var createResult = await _keywordService.CreateCategoryAsync(oldCategoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditCategoryAsync(oldCategoryName, newCategoryName);
 
         // assert
-        createResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Edited);
-        await AssertCategoryDoesNotExist(oldCategoryNameClean);
-        await AssertCategoryDoesNotExist(oldCategoryName);
-        await AssertCategoryDoesNotExist(newCategoryName);
-        await AssertCategoryExists(newCategoryNameClean);
+        createResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Edited);
+        AssertCategoryDoesNotExist(editResult.Keywords, oldCategoryNameClean);
+        AssertCategoryDoesNotExist(editResult.Keywords, oldCategoryName);
+        AssertCategoryDoesNotExist(editResult.Keywords, newCategoryName);
+        AssertCategoryExists(editResult.Keywords, newCategoryNameClean);
     }
 
     [TestMethod]
@@ -414,17 +424,18 @@ public class KeywordServiceTests
         var oldCategoryNameClean = HttpUtility.HtmlEncode(oldCategoryName);
         var newCategoryNameClean = HttpUtility.HtmlEncode(newCategoryName);
         var createResult = await _keywordService.CreateCategoryAsync(oldCategoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditCategoryAsync(oldCategoryName, newCategoryName);
 
         // assert
-        createResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Edited);
-        await AssertCategoryDoesNotExist(oldCategoryNameClean);
-        await AssertCategoryDoesNotExist(oldCategoryName);
-        await AssertCategoryDoesNotExist(newCategoryName);
-        await AssertCategoryExists(newCategoryNameClean);
+        createResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Edited);
+        AssertCategoryDoesNotExist(editResult.Keywords, oldCategoryNameClean);
+        AssertCategoryDoesNotExist(editResult.Keywords, oldCategoryName);
+        AssertCategoryDoesNotExist(editResult.Keywords, newCategoryName);
+        AssertCategoryExists(editResult.Keywords, newCategoryNameClean);
     }
 
     [TestMethod]
@@ -434,17 +445,19 @@ public class KeywordServiceTests
         var oldCategoryName = Guid.NewGuid().ToString();
         var newCategoryName = Guid.NewGuid().ToString();
         var oldCreateResult = await _keywordService.CreateCategoryAsync(oldCategoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(oldCreateResult.Keywords);
         var newCreateResult = await _keywordService.CreateCategoryAsync(newCategoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(newCreateResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditCategoryAsync(oldCategoryName, newCategoryName);
 
         // assert
-        oldCreateResult.Should().Be(ResultType.Created);
-        newCreateResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Duplicate);
-        await AssertCategoryExists(oldCategoryName);
-        await AssertCategoryExists(newCategoryName);
+        oldCreateResult.ResultType.Should().Be(ResultType.Created);
+        newCreateResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Duplicate);
+        AssertCategoryExists(editResult.Keywords, oldCategoryName);
+        AssertCategoryExists(editResult.Keywords, newCategoryName);
     }
 
     [DataTestMethod]
@@ -500,21 +513,23 @@ public class KeywordServiceTests
         var newKeywordNameClean = Guid.NewGuid().ToString();
         var newKeywordName = $" {newKeywordNameClean}  ";
         var createCategoryResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createCategoryResult.Keywords);
         var createOldKeywordResult = await _keywordService.CreateKeywordAsync(categoryName, oldKeywordName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createOldKeywordResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditKeywordAsync(categoryName, oldKeywordName, newKeywordName);
 
         // assert
-        createCategoryResult.Should().Be(ResultType.Created);
-        createOldKeywordResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Edited);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertKeywordDoesNotExist(categoryNameClean, oldKeywordName);
-        await AssertKeywordDoesNotExist(categoryNameClean, oldKeywordNameClean);
-        await AssertKeywordDoesNotExist(categoryNameClean, newKeywordName);
-        await AssertKeywordExists(categoryNameClean, newKeywordNameClean);
+        createCategoryResult.ResultType.Should().Be(ResultType.Created);
+        createOldKeywordResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Edited);
+        AssertCategoryDoesNotExist(editResult.Keywords, categoryName);
+        AssertCategoryExists(editResult.Keywords, categoryNameClean);
+        AssertKeywordDoesNotExist(editResult.Keywords, categoryNameClean, oldKeywordName);
+        AssertKeywordDoesNotExist(editResult.Keywords, categoryNameClean, oldKeywordNameClean);
+        AssertKeywordDoesNotExist(editResult.Keywords, categoryNameClean, newKeywordName);
+        AssertKeywordExists(editResult.Keywords, categoryNameClean, newKeywordNameClean);
     }
 
     [TestMethod]
@@ -528,21 +543,23 @@ public class KeywordServiceTests
         var oldKeywordNameClean = HttpUtility.HtmlEncode(oldKeywordName);
         var newKeywordNameClean = HttpUtility.HtmlEncode(newKeywordName);
         var createCategoryResult = await _keywordService.CreateCategoryAsync(categoryName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createCategoryResult.Keywords);
         var createOldKeywordResult = await _keywordService.CreateKeywordAsync(categoryName, oldKeywordName);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(createOldKeywordResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditKeywordAsync(categoryName, oldKeywordName, newKeywordName);
 
         // assert
-        createCategoryResult.Should().Be(ResultType.Created);
-        createOldKeywordResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Edited);
-        await AssertCategoryDoesNotExist(categoryName);
-        await AssertCategoryExists(categoryNameClean);
-        await AssertKeywordDoesNotExist(categoryNameClean, oldKeywordName);
-        await AssertKeywordDoesNotExist(categoryNameClean, oldKeywordNameClean);
-        await AssertKeywordDoesNotExist(categoryNameClean, newKeywordName);
-        await AssertKeywordExists(categoryNameClean, newKeywordNameClean);
+        createCategoryResult.ResultType.Should().Be(ResultType.Created);
+        createOldKeywordResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Edited);
+        AssertCategoryDoesNotExist(editResult.Keywords, categoryName);
+        AssertCategoryExists(editResult.Keywords, categoryNameClean);
+        AssertKeywordDoesNotExist(editResult.Keywords, categoryNameClean, oldKeywordName);
+        AssertKeywordDoesNotExist(editResult.Keywords, categoryNameClean, oldKeywordNameClean);
+        AssertKeywordDoesNotExist(editResult.Keywords, categoryNameClean, newKeywordName);
+        AssertKeywordExists(editResult.Keywords, categoryNameClean, newKeywordNameClean);
     }
 
     [TestMethod]
@@ -554,24 +571,28 @@ public class KeywordServiceTests
         var firstKeyword = Guid.NewGuid().ToString();
         var secondKeyword = Guid.NewGuid().ToString();
         var firstCategoryResult = await _keywordService.CreateCategoryAsync(firstCategory);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstCategoryResult.Keywords);
         var secondCategoryResult = await _keywordService.CreateCategoryAsync(secondCategory);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(secondCategoryResult.Keywords);
         var firstKeywordResult = await _keywordService.CreateKeywordAsync(firstCategory, firstKeyword);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstKeywordResult.Keywords);
         var secondKeywordResult = await _keywordService.CreateKeywordAsync(secondCategory, secondKeyword);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(secondKeywordResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditKeywordAsync(firstCategory, firstKeyword, secondKeyword);
 
         // assert
-        firstCategoryResult.Should().Be(ResultType.Created);
-        secondCategoryResult.Should().Be(ResultType.Created);
-        firstKeywordResult.Should().Be(ResultType.Created);
-        secondKeywordResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Edited);
-        await AssertCategoryExists(firstCategory);
-        await AssertCategoryExists(secondCategory);
-        await AssertKeywordDoesNotExist(firstCategory, firstKeyword);
-        await AssertKeywordExists(firstCategory, secondKeyword);
-        await AssertKeywordExists(secondCategory, secondKeyword);
+        firstCategoryResult.ResultType.Should().Be(ResultType.Created);
+        secondCategoryResult.ResultType.Should().Be(ResultType.Created);
+        firstKeywordResult.ResultType.Should().Be(ResultType.Created);
+        secondKeywordResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Edited);
+        AssertCategoryExists(editResult.Keywords, firstCategory);
+        AssertCategoryExists(editResult.Keywords, secondCategory);
+        AssertKeywordDoesNotExist(editResult.Keywords, firstCategory, firstKeyword);
+        AssertKeywordExists(editResult.Keywords, firstCategory, secondKeyword);
+        AssertKeywordExists(editResult.Keywords, secondCategory, secondKeyword);
     }
 
     [TestMethod]
@@ -582,20 +603,23 @@ public class KeywordServiceTests
         var firstKeyword = Guid.NewGuid().ToString();
         var secondKeyword = Guid.NewGuid().ToString();
         var categoryResult = await _keywordService.CreateCategoryAsync(category);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(categoryResult.Keywords);
         var firstKeywordResult = await _keywordService.CreateKeywordAsync(category, firstKeyword);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(firstKeywordResult.Keywords);
         var secondKeywordResult = await _keywordService.CreateKeywordAsync(category, secondKeyword);
+        _mockKeywordRepository.Setup(mock => mock.ReadAsync()).ReturnsAsync(secondKeywordResult.Keywords);
 
         // act
         var editResult = await _keywordService.EditKeywordAsync(category, firstKeyword, secondKeyword);
 
         // assert
-        categoryResult.Should().Be(ResultType.Created);
-        firstKeywordResult.Should().Be(ResultType.Created);
-        secondKeywordResult.Should().Be(ResultType.Created);
-        editResult.Should().Be(ResultType.Duplicate);
-        await AssertCategoryExists(category);
-        await AssertKeywordExists(category, firstKeyword);
-        await AssertKeywordExists(category, secondKeyword);
+        categoryResult.ResultType.Should().Be(ResultType.Created);
+        firstKeywordResult.ResultType.Should().Be(ResultType.Created);
+        secondKeywordResult.ResultType.Should().Be(ResultType.Created);
+        editResult.ResultType.Should().Be(ResultType.Duplicate);
+        AssertCategoryExists(editResult.Keywords, category);
+        AssertKeywordExists(editResult.Keywords, category, firstKeyword);
+        AssertKeywordExists(editResult.Keywords, category, secondKeyword);
     }
 
     [TestMethod]
@@ -623,24 +647,21 @@ public class KeywordServiceTests
         }
     }
 
-    private async Task AssertCategoryExists(string categoryName)
+    private static void AssertCategoryExists(IEnumerable<Keyword> keywords, string categoryName)
     {
-        var keywords = await _keywordService.GetKeywordsAsync();
         keywords.Should().Contain(item =>
             item.IsCategory &&
             item.Name.Equals(categoryName, StringComparison.Ordinal));
     }
 
-    private async Task AssertCategoryDoesNotExist(string categoryName)
+    private static void AssertCategoryDoesNotExist(IEnumerable<Keyword> keywords, string categoryName)
     {
-        var keywords = await _keywordService.GetKeywordsAsync();
         keywords.Should().NotContain(item =>
             item.Name.Equals(categoryName, StringComparison.Ordinal));
     }
 
-    private async Task AssertKeywordExists(string categoryName, string keywordName)
+    private static void AssertKeywordExists(IEnumerable<Keyword> keywords, string categoryName, string keywordName)
     {
-        var keywords = await _keywordService.GetKeywordsAsync();
         keywords.Should().Contain(item =>
             item.IsCategory &&
             item.Name.Equals(categoryName) &&
@@ -650,9 +671,8 @@ public class KeywordServiceTests
                 !keyword.Children.Any()) == 1);
     }
 
-    private async Task AssertKeywordDoesNotExist(string categoryName, string keywordName)
+    private static void AssertKeywordDoesNotExist(IEnumerable<Keyword> keywords, string categoryName, string keywordName)
     {
-        var keywords = await _keywordService.GetKeywordsAsync();
         keywords.Should().Contain(item =>
             item.IsCategory &&
             item.Name.Equals(categoryName) &&

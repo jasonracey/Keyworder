@@ -7,12 +7,11 @@ namespace Keyworder;
 public static class ServiceCollectionExtensions
 {
     public static void AddKeyworderServices(
-        this IServiceCollection services, 
-        ConfigurationManager configuration)
+        this IServiceCollection services)
     {
         services
             .AddClipboardService()
-            .AddKeywordService(configuration)
+            .AddKeywordService()
             .AddNotificationService();
     }
 
@@ -24,12 +23,11 @@ public static class ServiceCollectionExtensions
     }
 
     private static IServiceCollection AddKeywordService(
-        this IServiceCollection services, 
-        IConfiguration configuration)
+        this IServiceCollection services)
     {
-        // Add as singleton so all clients use the same file lock instance
-        var keywordsJsonPath = configuration["KeywordsJsonPath"];
-        var keywordService = new KeywordService(keywordsJsonPath);
+        // Add as singleton because there's no state
+        var keywordRepository = new BlobKeywordRepository();
+        var keywordService = new KeywordService(keywordRepository);
         return services.AddSingleton(keywordService);
     }
 
