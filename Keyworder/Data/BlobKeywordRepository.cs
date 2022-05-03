@@ -7,7 +7,7 @@ namespace Keyworder.Data;
 
 public class BlobKeywordRepository : IKeywordRepository
 {
-    private static readonly Uri BlobContainerUri = new("https://keyworder.blob.core.windows.net/keyword-data");
+    private static readonly Uri BlobContainerUri = new("https://keyworder.blob.core.windows.net/keyworder-data");
     private static readonly BlobContainerClient BlobContainerClient = new (BlobContainerUri, new DefaultAzureCredential());
     private static readonly BlobClient BlobClient = BlobContainerClient.GetBlobClient("Keywords.json");
 
