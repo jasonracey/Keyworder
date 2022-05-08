@@ -1,10 +1,12 @@
 using Keyworder;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .CreateLogger();
+    .CreateBootstrapLogger();
 
 try
 {
@@ -12,11 +14,21 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseSerilog();
+    var options = new ApplicationInsightsServiceOptions
+    {
+        ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")
+    };
 
+    builder.Services.AddApplicationInsightsTelemetry(options);
     builder.Services.AddKeyworderServices();
     builder.Services.AddRazorPages();
     builder.Services.AddServerSideBlazor();
+    
+    builder.Host
+        .UseSerilog((_, services, loggerConfiguration) => loggerConfiguration
+            .WriteTo.ApplicationInsights(
+                services.GetRequiredService<TelemetryConfiguration>(),
+                TelemetryConverter.Traces));
 
     var app = builder.Build();
 
@@ -31,10 +43,8 @@ try
     app.UseHttpsRedirection();
     app.UseStaticFiles();
     app.UseRouting();
-
     app.MapBlazorHub();
     app.MapFallbackToPage("/_Host");
-
     app.Run();
 }
 catch (Exception ex)
