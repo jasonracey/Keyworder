@@ -37,7 +37,8 @@ public class BlobKeywordRepository : IKeywordRepository
     {
         var json = JsonConvert.SerializeObject(keywords);
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var _ = await _blobClient.UploadAsync(stream).ConfigureAwait(false);
+        await _blobClient.DeleteIfExistsAsync();
+        await _blobClient.UploadAsync(stream).ConfigureAwait(false);
         return await ReadAsync().ConfigureAwait(false);
     }
 }
