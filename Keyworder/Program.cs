@@ -1,60 +1,40 @@
 using Keyworder;
+using Keyworder.Data;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.Extensibility;
-using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+var builder = WebApplication.CreateBuilder(args);
 
-Log.Information("Starting Keyworder application");
+// For reading these values during local development see the link below:
+// https://medium.com/datadigest/user-secrets-in-asp-net-core-with-jetbrains-rider-26c381177391
+var applicationInsightsConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+var applicationInsightsInstrumentationKey = builder.Configuration["APPLICATIONINSIGHTS_INSTRUMENTATION_KEY"];
+var storageAccountConnectionString = builder.Configuration["STORAGE_ACCOUNT_CONNECTION_STRING"];
 
-try
+builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
 {
-    var builder = WebApplication.CreateBuilder(args);
+    ConnectionString = applicationInsightsConnectionString
+});
+using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
+    .SetMinimumLevel(LogLevel.Trace)
+    .AddConsole()
+    .AddApplicationInsights(applicationInsightsInstrumentationKey));
+builder.Services.AddKeyworderServices(storageAccountConnectionString, loggerFactory.CreateLogger<KeywordService>());
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
-    // For reading these values during local development see the link below:
-    // https://medium.com/datadigest/user-secrets-in-asp-net-core-with-jetbrains-rider-26c381177391
-    var applicationInsightsConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
-    var storageAccountConnectionString = builder.Configuration["STORAGE_ACCOUNT_CONNECTION_STRING"];
+var app = builder.Build();
 
-    builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
-    {
-        ConnectionString = applicationInsightsConnectionString
-    });
-    builder.Services.AddKeyworderServices(storageAccountConnectionString);
-    builder.Services.AddRazorPages();
-    builder.Services.AddServerSideBlazor();
-    
-    builder.Host
-        .UseSerilog((_, services, loggerConfiguration) => loggerConfiguration
-            .WriteTo.ApplicationInsights(
-                services.GetRequiredService<TelemetryConfiguration>(),
-                TelemetryConverter.Traces));
-
-    var app = builder.Build();
-
-    // Configure the HTTP request pipeline.
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseExceptionHandler("/Error");
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
-    }
-
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
-    app.UseRouting();
-    app.MapBlazorHub();
-    app.MapFallbackToPage("/_Host");
-    app.Run();
-}
-catch (Exception ex)
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
 {
-    Log.Fatal(ex, "Keyworder application start failed");
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
-finally
-{
-    Log.CloseAndFlush();
-}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
+app.Run();

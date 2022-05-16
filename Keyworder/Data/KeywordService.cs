@@ -1,15 +1,18 @@
-﻿using Serilog;
-using System.Web;
+﻿using System.Web;
 
 namespace Keyworder.Data;
 
 public class KeywordService
 {
     private readonly IKeywordRepository _keywordRepository;
+    private readonly ILogger<KeywordService> _logger;
 
-    public KeywordService(IKeywordRepository keywordRepository)
+    public KeywordService(
+        IKeywordRepository keywordRepository,
+        ILogger<KeywordService> logger)
     {
         _keywordRepository = keywordRepository ?? throw new ArgumentNullException(nameof(keywordRepository));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<KeywordResult> CreateCategoryAsync(string? categoryName)
@@ -29,7 +32,7 @@ public class KeywordService
 
             if (existingCategory != null)
             {
-                Log.Warning("CreateCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Duplicate), categoryNameClean);
+                _logger.LogWarning("CreateCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Duplicate), categoryNameClean);
                 return new KeywordResult(ResultType.Duplicate, existingKeywords);
             }
 
@@ -44,12 +47,12 @@ public class KeywordService
             
             var newKeywords = await _keywordRepository.WriteAsync(updatedKeywords).ConfigureAwait(false);
 
-            Log.Information("CreateCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Created), categoryNameClean);
+            _logger.LogInformation("CreateCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Created), categoryNameClean);
             return new KeywordResult(ResultType.Created, newKeywords);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "CreateCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Error), categoryNameClean);
+            _logger.LogError(ex, "CreateCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Error), categoryNameClean);
             return new KeywordResult(ResultType.Error, existingKeywords);
         }
     }
@@ -76,7 +79,7 @@ public class KeywordService
 
             if (existingCategory.Children.Any(keyword => keyword.Name.Equals(keywordNameClean, StringComparison.Ordinal)))
             {
-                Log.Warning("CreateKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Duplicate), categoryNameClean, keywordNameClean);
+                _logger.LogWarning("CreateKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Duplicate), categoryNameClean, keywordNameClean);
                 return new KeywordResult(ResultType.Duplicate, existingKeywords);
             }
 
@@ -95,12 +98,12 @@ public class KeywordService
 
             var newKeywords = await _keywordRepository.WriteAsync(updatedKeywords).ConfigureAwait(false);
 
-            Log.Information("CreateKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Created), categoryNameClean, keywordNameClean);
+            _logger.LogInformation("CreateKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Created), categoryNameClean, keywordNameClean);
             return new KeywordResult(ResultType.Created, newKeywords);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "CreateKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Error), categoryNameClean, keywordNameClean);
+            _logger.LogError(ex, "CreateKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Error), categoryNameClean, keywordNameClean);
             return new KeywordResult(ResultType.Error, existingKeywords);
         }
     }
@@ -122,12 +125,12 @@ public class KeywordService
 
             var newKeywords = await _keywordRepository.WriteAsync(updatedKeywords).ConfigureAwait(false);
 
-            Log.Information("DeleteCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Deleted), categoryNameClean);
+            _logger.LogInformation("DeleteCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Deleted), categoryNameClean);
             return new KeywordResult(ResultType.Deleted, newKeywords);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "DeleteCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Error), categoryNameClean);
+            _logger.LogError(ex, "DeleteCategoryAsync: result={Result} categoryNameClean={CategoryNameClean}", nameof(ResultType.Error), categoryNameClean);
             return new KeywordResult(ResultType.Error, existingKeywords);
         }
     }
@@ -166,12 +169,12 @@ public class KeywordService
 
             var newKeywords = await _keywordRepository.WriteAsync(updatedKeywords).ConfigureAwait(false);
 
-            Log.Information("DeleteKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Deleted), categoryNameClean, keywordNameClean);
+            _logger.LogInformation("DeleteKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Deleted), categoryNameClean, keywordNameClean);
             return new KeywordResult(ResultType.Deleted, newKeywords);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "DeleteKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Error), categoryNameClean, keywordNameClean);
+            _logger.LogError(ex, "DeleteKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} keywordNameClean={KeywordNameClean}", nameof(ResultType.Error), categoryNameClean, keywordNameClean);
             return new KeywordResult(ResultType.Error, existingKeywords);
         }
     }
@@ -195,7 +198,7 @@ public class KeywordService
 
             if (existingKeywords.Any(keyword => keyword.Name.Equals(newCategoryNameClean, StringComparison.Ordinal)))
             {
-                Log.Warning("EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewKeywordNameClean}", nameof(ResultType.Duplicate), oldCategoryNameClean, newCategoryNameClean);
+                _logger.LogWarning("EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewKeywordNameClean}", nameof(ResultType.Duplicate), oldCategoryNameClean, newCategoryNameClean);
                 return new KeywordResult(ResultType.Duplicate, existingKeywords);
             }
 
@@ -214,12 +217,12 @@ public class KeywordService
 
             var newKeywords = await _keywordRepository.WriteAsync(updatedKeywords).ConfigureAwait(false);
 
-            Log.Information("EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewCategoryNameClean}", nameof(ResultType.Edited), oldCategoryNameClean, newCategoryNameClean);
+            _logger.LogInformation("EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewCategoryNameClean}", nameof(ResultType.Edited), oldCategoryNameClean, newCategoryNameClean);
             return new KeywordResult(ResultType.Edited, newKeywords);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewCategoryNameClean}", nameof(ResultType.Error), oldCategoryNameClean, newCategoryNameClean);
+            _logger.LogError(ex, "EditCategoryAsync: result={Result} oldCategoryNameClean={OldCategoryNameClean} newCategoryNameClean={NewCategoryNameClean}", nameof(ResultType.Error), oldCategoryNameClean, newCategoryNameClean);
             return new KeywordResult(ResultType.Error, existingKeywords);
         }
     }
@@ -249,7 +252,7 @@ public class KeywordService
 
             if (existingCategory.Children.Any(keyword => keyword.Name.Equals(newKeywordNameClean, StringComparison.Ordinal))) 
             {
-                Log.Warning("EditKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} oldKeywordNameClean={OldKeywordNameClean} newKeywordNameClean={NewKeywordNameClean}", nameof(ResultType.Duplicate), categoryNameClean, oldKeywordNameClean, newKeywordNameClean);
+                _logger.LogWarning("EditKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} oldKeywordNameClean={OldKeywordNameClean} newKeywordNameClean={NewKeywordNameClean}", nameof(ResultType.Duplicate), categoryNameClean, oldKeywordNameClean, newKeywordNameClean);
                 return new KeywordResult(ResultType.Duplicate, existingKeywords);
             }
 
@@ -278,12 +281,12 @@ public class KeywordService
 
             var newKeywords = await _keywordRepository.WriteAsync(updatedKeywords).ConfigureAwait(false);
 
-            Log.Information("EditKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} oldKeywordNameClean={OldKeywordNameClean} newKeywordNameClean={NewKeywordNameClean}", nameof(ResultType.Edited), categoryNameClean, oldKeywordNameClean, newKeywordNameClean);
+            _logger.LogInformation("EditKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} oldKeywordNameClean={OldKeywordNameClean} newKeywordNameClean={NewKeywordNameClean}", nameof(ResultType.Edited), categoryNameClean, oldKeywordNameClean, newKeywordNameClean);
             return new KeywordResult(ResultType.Edited, newKeywords);
         }
         catch (Exception ex)
         {
-            Log.Information(ex,"EditKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} oldKeywordNameClean={OldKeywordNameClean} newKeywordNameClean={NewKeywordNameClean}", nameof(ResultType.Error), categoryNameClean, oldKeywordNameClean, newKeywordNameClean);
+            _logger.LogInformation(ex,"EditKeywordAsync: result={Result} categoryNameClean={CategoryNameClean} oldKeywordNameClean={OldKeywordNameClean} newKeywordNameClean={NewKeywordNameClean}", nameof(ResultType.Error), categoryNameClean, oldKeywordNameClean, newKeywordNameClean);
             return new KeywordResult(ResultType.Error, existingKeywords);
         }
     }
@@ -296,12 +299,12 @@ public class KeywordService
             if (keywords == null)
                 throw new KeyworderException("The repository returned a null keywords collection");
 
-            Log.Information("GetKeywordsAsync: result={Result}", nameof(ResultType.Success));
+            _logger.LogInformation("GetKeywordsAsync: result={Result}", nameof(ResultType.Success));
             return await Task.FromResult(keywords);
         }
         catch (Exception ex)
         {
-            Log.Information(ex, "GetKeywordsAsync: result={Result}", nameof(ResultType.Error));
+            _logger.LogInformation(ex, "GetKeywordsAsync: result={Result}", nameof(ResultType.Error));
             throw; 
         }
     }

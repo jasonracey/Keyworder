@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Keyworder.UnitTests.Data;
@@ -14,8 +15,11 @@ namespace Keyworder.UnitTests.Data;
 public class KeywordServiceTests
 {
     private Mock<IKeywordRepository> _mockKeywordRepository = new();
+    private Mock<ILogger<KeywordService>> _mockLogger = new();
     
-    private KeywordService _keywordService = new(Mock.Of<IKeywordRepository>());
+    private KeywordService _keywordService = new(
+        Mock.Of<IKeywordRepository>(),
+        Mock.Of<ILogger<KeywordService>>());
 
     [TestInitialize]
     public void TestInitialize()
@@ -30,21 +34,37 @@ public class KeywordServiceTests
             .Setup(mock => mock.WriteAsync(It.IsAny<IEnumerable<Keyword>>()))
             .ReturnsAsync((IEnumerable<Keyword> keywords) => keywords);
 
-        _keywordService = new KeywordService(_mockKeywordRepository.Object);
+        _keywordService = new KeywordService(
+            _mockKeywordRepository.Object,
+            _mockLogger.Object);
     }
     
     [TestMethod]
-    public void Constructor_ValidatesArgs()
+    public void Constructor_ValidatesRepositoryArg()
     {
         // arrange
         var action = () =>
         {
-            var _ = new KeywordService(null!);
+            var _ = new KeywordService(null!, _mockLogger.Object);
         };
 
         // act/assert
         action.Should().Throw<ArgumentNullException>()
             .WithParameterName("keywordRepository");
+    }
+    
+    [TestMethod]
+    public void Constructor_ValidatesLoggerArg()
+    {
+        // arrange
+        var action = () =>
+        {
+            var _ = new KeywordService(_mockKeywordRepository.Object, null!);
+        };
+
+        // act/assert
+        action.Should().Throw<ArgumentNullException>()
+            .WithParameterName("logger");
     }
 
     [DataTestMethod]

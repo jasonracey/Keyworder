@@ -8,11 +8,12 @@ public static class ServiceCollectionExtensions
 {
     public static void AddKeyworderServices(
         this IServiceCollection services,
-        string storageAccountConnectionString)
+        string storageAccountConnectionString,
+        ILogger<KeywordService> logger)
     {
         services
             .AddClipboardService()
-            .AddKeywordService(storageAccountConnectionString)
+            .AddKeywordService(storageAccountConnectionString, logger)
             .AddNotificationService();
     }
 
@@ -25,11 +26,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddKeywordService(
         this IServiceCollection services,
-        string storageAccountConnectionString)
+        string storageAccountConnectionString,
+        ILogger<KeywordService> logger)
     {
         // Add as singleton because there's no state
         var keywordRepository = new BlobKeywordRepository(storageAccountConnectionString);
-        var keywordService = new KeywordService(keywordRepository);
+        var keywordService = new KeywordService(keywordRepository, logger);
         return services.AddSingleton(keywordService);
     }
 
