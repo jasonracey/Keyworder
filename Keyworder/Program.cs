@@ -8,19 +8,22 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
 
+Log.Information("Starting Keyworder application");
+
 try
 {
-    Log.Information("Starting Keyworder application");
-
     var builder = WebApplication.CreateBuilder(args);
 
-    var options = new ApplicationInsightsServiceOptions
-    {
-        ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")
-    };
+    // For reading these values during local development see the link below:
+    // https://medium.com/datadigest/user-secrets-in-asp-net-core-with-jetbrains-rider-26c381177391
+    var applicationInsightsConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+    var storageAccountConnectionString = builder.Configuration["STORAGE_ACCOUNT_CONNECTION_STRING"];
 
-    builder.Services.AddApplicationInsightsTelemetry(options);
-    builder.Services.AddKeyworderServices();
+    builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+    {
+        ConnectionString = applicationInsightsConnectionString
+    });
+    builder.Services.AddKeyworderServices(storageAccountConnectionString);
     builder.Services.AddRazorPages();
     builder.Services.AddServerSideBlazor();
     

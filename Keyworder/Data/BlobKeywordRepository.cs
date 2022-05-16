@@ -1,5 +1,4 @@
 using System.Text;
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Newtonsoft.Json;
 
@@ -7,13 +6,22 @@ namespace Keyworder.Data;
 
 public class BlobKeywordRepository : IKeywordRepository
 {
-    private static readonly Uri BlobContainerUri = new("https://keyworder.blob.core.windows.net/keyworder-data");
-    private static readonly BlobContainerClient BlobContainerClient = new (BlobContainerUri, new DefaultAzureCredential());
-    private static readonly BlobClient BlobClient = BlobContainerClient.GetBlobClient("Keywords.json");
+    private const string BlobContainerName = "keyworder-data";
+    private const string BlobName = "Keywords.json";
 
+    private readonly BlobClient _blobClient;
+
+    public BlobKeywordRepository(string storageAccountConnectionString)
+    {
+        if (string.IsNullOrWhiteSpace(storageAccountConnectionString)) throw new ArgumentNullException(nameof(storageAccountConnectionString));
+        
+        var blobContainerClient = new BlobContainerClient(storageAccountConnectionString, BlobContainerName);
+        _blobClient = blobContainerClient.GetBlobClient(BlobName);
+    }
+    
     public async Task<IEnumerable<Keyword>> ReadAsync()
     {
-        var response = await BlobClient.DownloadAsync().ConfigureAwait(false);
+        var response = await _blobClient.DownloadAsync().ConfigureAwait(false);
         using var streamReader = new StreamReader(response.Value.Content);
         var builder = new StringBuilder();
         while (!streamReader.EndOfStream)
@@ -29,7 +37,7 @@ public class BlobKeywordRepository : IKeywordRepository
     {
         var json = JsonConvert.SerializeObject(keywords);
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        var _ = await BlobClient.UploadAsync(stream).ConfigureAwait(false);
+        var _ = await _blobClient.UploadAsync(stream).ConfigureAwait(false);
         return await ReadAsync().ConfigureAwait(false);
     }
 }

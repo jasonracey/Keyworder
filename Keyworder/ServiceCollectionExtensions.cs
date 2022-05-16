@@ -7,11 +7,12 @@ namespace Keyworder;
 public static class ServiceCollectionExtensions
 {
     public static void AddKeyworderServices(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        string storageAccountConnectionString)
     {
         services
             .AddClipboardService()
-            .AddKeywordService()
+            .AddKeywordService(storageAccountConnectionString)
             .AddNotificationService();
     }
 
@@ -23,10 +24,11 @@ public static class ServiceCollectionExtensions
     }
 
     private static IServiceCollection AddKeywordService(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        string storageAccountConnectionString)
     {
         // Add as singleton because there's no state
-        var keywordRepository = new BlobKeywordRepository();
+        var keywordRepository = new BlobKeywordRepository(storageAccountConnectionString);
         var keywordService = new KeywordService(keywordRepository);
         return services.AddSingleton(keywordService);
     }
