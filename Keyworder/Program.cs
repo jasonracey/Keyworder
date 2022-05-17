@@ -1,3 +1,4 @@
+using BlazorApplicationInsights;
 using Keyworder;
 using Keyworder.Data;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -18,17 +19,21 @@ using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
     .SetMinimumLevel(LogLevel.Trace)
     .AddConsole()
     .AddApplicationInsights(applicationInsightsInstrumentationKey));
+
+builder.Services.AddBlazorApplicationInsights(async applicationInsights =>
+{
+    await applicationInsights.SetInstrumentationKey(applicationInsightsInstrumentationKey);
+    await applicationInsights.TrackPageView();
+});
 builder.Services.AddKeyworderServices(storageAccountConnectionString, loggerFactory.CreateLogger<KeywordService>());
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
