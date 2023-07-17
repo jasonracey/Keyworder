@@ -24,13 +24,13 @@ else
             <TreeView
                 AllowSelection="true"
                 @bind-SelectedItems="_selectedKeywords"
-                GetChildren="(keywords) => keywords.Children"
+                GetChildren="keyword => keyword.Children"
                 InitiallyCollapsed="true"
                 ItemClass="tree-item"
                 ItemDisabled="keyword => IsKeywordDisabled(keyword)"
                 Items=@_allKeywords 
                 @key=@_selectedKeywords
-                SortBy="(keywords) => keywords.OrderBy(keyword => keyword.Name)">
+                SortBy="keywords => keywords.OrderBy(keyword => keyword.Name)">
                 <ItemTemplate>
                     @context.Item.Name
                 </ItemTemplate>
