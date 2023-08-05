@@ -8,6 +8,7 @@
 @inject ClipboardService ClipboardService
 @inject KeywordService KeywordService
 @inject NotificationService NotificationService
+@inject StateContainer State
 
 <h2>Select Keywords</h2>
 
@@ -23,13 +24,13 @@ else
         <div class="col">
             <TreeView
                 AllowSelection="true"
-                @bind-SelectedItems="_selectedKeywords"
+                @bind-SelectedItems="State.SelectedKeywords"
                 GetChildren="keyword => keyword.Children"
                 InitiallyCollapsed="true"
                 ItemClass="tree-item"
                 ItemDisabled="keyword => IsKeywordDisabled(keyword)"
                 Items=@_allKeywords 
-                @key=@_selectedKeywords
+                @key=@State.SelectedKeywords
                 SortBy="keywords => keywords.OrderBy(keyword => keyword.Name)">
                 <ItemTemplate>
                     @context.Item.Name
@@ -45,7 +46,7 @@ else
                 Text="Clear"/>
             <RadzenButton
                 ButtonStyle="ButtonStyle.Info"
-                Click="@(() => CopyToClipboard(ToFlickrTagsString(_selectedKeywords)))"
+                Click="@(() => CopyToClipboard(ToFlickrTagsString(State.SelectedKeywords)))"
                 Text="Copy"/>
             <RadzenNotification/>
         </div>
@@ -57,7 +58,6 @@ else
     private static readonly NotificationMessage CopyWarningMessage = MessageBuilder.BuildCopyWarningMessage();
 
     private List<Keyword> _allKeywords = new();
-    private List<Keyword> _selectedKeywords = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,7 +66,7 @@ else
 
     private void ClearSelectedKeywords()
     {
-        _selectedKeywords = new List<Keyword>();
+        State.SelectedKeywords = new List<Keyword>();
     }
 
     private async Task CopyToClipboard(string input)

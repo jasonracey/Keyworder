@@ -13,8 +13,9 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddKeywordService(storageAccountConnectionString, logger)
+            .AddScoped<ClipboardService>()
             .AddSingleton<NotificationService>()
-            .AddScoped<ClipboardService>();
+            .AddSingleton<StateContainer>();
     }
 
     private static IServiceCollection AddKeywordService(
@@ -22,7 +23,6 @@ public static class ServiceCollectionExtensions
         string storageAccountConnectionString,
         ILogger<KeywordService> logger)
     {
-        // Add as singleton because there's no state
         var keywordRepository = new BlobKeywordRepository(storageAccountConnectionString);
         var keywordService = new KeywordService(keywordRepository, logger);
         return services.AddSingleton(keywordService);
